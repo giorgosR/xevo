@@ -1,0 +1,17 @@
+name: xeus
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.5
+  - conda-forge::cmake
+  - conda-forge::ninja
+  - conda-forge::make
+  - conda-forge::xtensor
+  - conda-forge::xsimd
+  - conda-forge::xtensor-blas
+  - conda-forge::openblas
+  - conda-forge::lapack
+
+# for linux conda install gxx_linux-64
+# for ylinux conda install gcc_linux-64

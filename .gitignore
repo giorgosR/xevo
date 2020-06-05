@@ -1,0 +1,11 @@
+# ignore vscode settings
+.vscode
+
+# ignore builds
+build*
+
+# ignore jupyter checkpoints
+junbs/.ipynb_checkpoints/
+
+# ignore pdfs
+doc/*.pdf

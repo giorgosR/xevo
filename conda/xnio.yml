@@ -1,0 +1,11 @@
+name: xnio
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.5
+  - conda-forge::cmake
+  - conda-forge::ninja
+  - conda-forge::make
+  - conda-forge::xtensor
+  - conda-forge::xsimd
