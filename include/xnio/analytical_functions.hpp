@@ -28,34 +28,15 @@ namespace xnio
      * @param X array to be evaluated
      * @return auto evaluated array
      */
-    template <class E, typename value_type = typename std::decay_t<E>::value_type>
-    inline auto operator()(const xt::xexpression<E>& X) -> E
+    template <class E, typename T = typename std::decay_t<E>::value_type>
+    inline auto operator()(const xt::xexpression<E>& X)
     {
-      const E& _X = X.derived_cast();
-
-      auto shape = _X.shape();
-      std::size_t dim = _X.dimension();
-      if (dim != 2)
-      {
-        throw std::runtime_error("The input array should be of dim 2");
-      }
-      xt::xtensor<value_type, 1, xt::layout_type::row_major> _x1(xt::view(_X, xt::all(), 0));
-      xt::xtensor<value_type, 1, xt::layout_type::row_major> _x2(xt::view(_X, xt::all(), 1));
-      
-      auto X1 = 15 * _x1 - 5;
-      auto X2 = 15 * _x2;
-      value_type a = 1;
-      value_type b = 5.1 / (4 * xt::numeric_constants<value_type>::PI*
-        xt::numeric_constants<value_type>::PI);
-      value_type c = 5 / xt::numeric_constants<value_type>::PI;
-      value_type d = 6;
-      value_type e = 10;
-      value_type f = 1 / (8 * xt::numeric_constants<value_type>::PI);
-
-      xt::xtensor<value_type, 1, xt::layout_type::row_major> y = 
-      xt::eval(a*xt::pow(X2 - b * X1*X1 + c * X1 - d, 2) + e * (1 - f)*xt::cos(X1) + e) + 5 * _x1;
-
-      return y;
+      double beta = 8.0;
+      auto y = evaluate(X);
+      auto max_index = xt::argmax(y)();
+      T y_max = y(max_index);
+      T factor = (-1)*(beta / y_max);
+      return xt::eval(xt::exp(factor * (y)));
     }
 
     /**
@@ -67,7 +48,38 @@ namespace xnio
     {
       return { {-5.0, 0.0}, {10.0, 15.0} };
     }
-    
+
+  private:
+
+    template <class E, typename value_type = typename std::decay_t<E>::value_type>
+    inline auto evaluate(const xt::xexpression<E>& X)
+    {
+      const E& _X = X.derived_cast();
+
+      auto shape = _X.shape();
+      std::size_t dim = _X.dimension();
+      if (dim != 2)
+      {
+        throw std::runtime_error("The input array should be of dim 2");
+      }
+      xt::xtensor<value_type, 1, xt::layout_type::row_major> _x1(xt::view(_X, xt::all(), 0));
+      xt::xtensor<value_type, 1, xt::layout_type::row_major> _x2(xt::view(_X, xt::all(), 1));
+
+      auto X1 = 15 * _x1 - 5;
+      auto X2 = 15 * _x2;
+      value_type a = 1;
+      value_type b = 5.1 / (4 * xt::numeric_constants<value_type>::PI*
+        xt::numeric_constants<value_type>::PI);
+      value_type c = 5 / xt::numeric_constants<value_type>::PI;
+      value_type d = 6;
+      value_type e = 10;
+      value_type f = 1 / (8 * xt::numeric_constants<value_type>::PI);
+
+      xt::xtensor<value_type, 1, xt::layout_type::row_major> y =
+        xt::eval(a*xt::pow(X2 - b * X1*X1 + c * X1 - d, 2) + e * (1 - f)*xt::cos(X1) + e) + 5 * _x1;
+
+      return y;
+    }
 
   };
 
