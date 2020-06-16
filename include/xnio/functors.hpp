@@ -126,34 +126,46 @@ namespace xnio
        
      }
 
-    template <class E, class F,
-      typename T = typename std::decay_t<E>::value_type,
-      typename I = typename std::decay_t<F>::value_type>
-      auto operator()(const xt::xexpression<E>& X, const xt::xexpression<F>& indices)
+    template <class E,
+      typename T = typename std::decay_t<E>::value_type>
+      auto operator()(const xt::xexpression<E>& X)->E
     {
       double alpha = 0.5;
       const E& _X = X.derived_cast();
-      const F& _indices = indices.derived_cast();
 
-      E out(_X);
-      auto shape_input = _X.shape();
-      auto shape_indices = _indices.shape();
-      T random_num = xt::random::rand<T>({ 1 })();
-      std::array<I, 2> shape = { 1, shape_indices[0] };
-      auto random_index = xt::random::randint<I>(shape, 0,
-        shape_input[1]);
-      //std::cout << random_index << std::endl;
-      for (std::size_t i{ 0 }; i < shape_indices[0]; ++i)
+      auto shape_X = _X.shape();
+      std::size_t num_of_indiv = shape_X[0];
+      std::size_t num_of_vars = shape_X[1];
+      std::size_t num_crossover = static_cast<std::size_t>(
+        floorl(_crossover_rate * num_of_indiv));
+      std::size_t _cross_run{};
+      if ((num_crossover % 2) == 0)
       {
-        I x_k_index = _indices(i, 0);
-        I y_k_index = _indices(i, 1);
-        T x_k = alpha * _X(y_k_index, random_index(0, i)) + (1 - alpha)*_X(x_k_index, random_index(0, i));
-        T y_k = alpha * _X(x_k_index, random_index(0, i)) + (1 - alpha)*_X(y_k_index, random_index(0, i));
-        out(x_k_index, random_index(0, i)) = x_k;
-        out(y_k_index, random_index(0, i)) = y_k;
+        _cross_run = num_crossover / 2;
+      }
+      else
+      {
+        _cross_run = (num_crossover / 2) + 1;
       }
 
-      return out;
+      std::array<std::size_t, 2> shape_out = { 2 * _cross_run, num_of_vars };
+      E _X_out = xt::view(_X, xt::range(0, 2 * _cross_run), xt::all());
+
+      std::array<std::size_t, 1> shape_rand_var = { _cross_run };
+      auto random_index = xt::random::randint<std::size_t>(shape_rand_var, 0,
+        num_of_vars);
+
+      for (std::size_t i{ 0 }; i < _cross_run; ++i)
+      {
+        std::size_t x_k_index = 2*i;
+        std::size_t y_k_index = 2*i+1;
+        T x_k = alpha * _X(y_k_index, random_index(0, i)) + (1 - alpha)*_X(x_k_index, random_index(0, i));
+        T y_k = alpha * _X(x_k_index, random_index(0, i)) + (1 - alpha)*_X(y_k_index, random_index(0, i));
+        _X_out(x_k_index, random_index(0, i)) = x_k;
+        _X_out(y_k_index, random_index(0, i)) = y_k;
+      }
+
+      return _X_out;
     }
     private:
     double _crossover_rate;
@@ -210,11 +222,11 @@ namespace xnio
     {
       const E& _X = X.derived_cast();
       E out(_X);
-      auto shape_input = _X.shape();
-      std::size_t total_lenth_of_gen = shape_input[0] * shape_input[1];
-      std::size_t num_mutations = static_cast<std::size_t>(floorl(_p_m * total_lenth_of_gen));
-      std::array<std::size_t, 1> shape = { num_mutations };
-      auto random_num = xt::random::randint<std::size_t>(shape, 1, total_lenth_of_gen);
+      auto shape_x = _X.shape();
+      std::size_t num_mutations = shape_x[0];
+      std::size_t num_variables = shape_x[1];
+      std::array<std::size_t, 1> shape_random = { num_mutations };
+      auto random_num = xt::random::randint<std::size_t>(shape_random, 0, num_variables);
       
       std::random_device rd;
       std::mt19937 gen(rd());
@@ -223,12 +235,8 @@ namespace xnio
       for (std::size_t i{ 0 }; i < num_mutations; ++i)
       {
         std::size_t rn = random_num(i);
-        std::size_t num_genes = shape_input[1];
-        std::size_t index_i = (rn / num_genes) - 1;
-        std::size_t index_j = rn - index_i * num_genes - 1;
-        std::array<std::size_t, 1> shape_noise = { 1 };
 
-        T p = _X(index_i, index_j);
+        T p = _X(i, rn);
         T p_n{};
         T u = distribution(gen);
         
@@ -243,7 +251,7 @@ namespace xnio
           p_n = p + delta*(1.0 - p);
         }
 
-        out(index_i, index_j) = p_n;
+        out(i, rn) = p_n;
       }
 
       return out;
@@ -266,25 +274,29 @@ namespace xnio
 
     }
 
-    template <class E,
+    template <class E, class F,
       typename T = typename std::decay_t<E>::value_type>
-      std::vector<std::size_t> operator()(const xt::xexpression<E>& Y)
+      auto operator()(const xt::xexpression<F>& X, const xt::xexpression<E>& Y)->F
     {
+      const F& _X = X.derived_cast();
       const E& _Y = Y.derived_cast();
 
       std::vector<std::size_t> indices;
-      auto shape = _Y.shape();
+      auto shape = _X.shape();
       std::size_t no_of_indiv = shape[0];
+      std::size_t no_of_vars = shape[1];
       std::size_t no_of_elites = static_cast<std::size_t>(ceil(_elite_rate * no_of_indiv));
+      std::array<std::size_t, 2> shape_out = { no_of_elites, no_of_vars };
+      F _X_out = xt::zeros<T>(shape_out);
       auto args = xt::argsort(_Y);
-      auto args_iter = args.storage_crbegin();
+      auto iter_back = args.crbegin();
       for (std::size_t i{ 0 }; i < no_of_elites; ++i)
       {
-        indices.push_back(*args_iter);
-        ++args_iter;
+        xt::view(_X_out, i, xt::all()) = xt::view(_X, *iter_back, xt::all());
+        ++iter_back;
       }
 
-      return indices;
+      return _X_out;
     }
   private:
     double _elite_rate;
