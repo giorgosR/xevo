@@ -33,7 +33,7 @@ TEST(ga, instatiate)
 
 TEST(ga, evolve)
 {
-  std::array<std::size_t, 2> shape = {20, 2};
+  std::array<std::size_t, 2> shape = {40, 2};
   xt::xarray<double> X = xt::zeros<double>(shape);
   
   xnio::Branin objective_f;
@@ -44,10 +44,15 @@ TEST(ga, evolve)
   std::cout << "Inital pop: \n" << X << "\n" << std::endl;
   std::cout << "Inital Y: \n" << objective_f(X) << "\n" << std::endl;
 
-
-  genetic_algorithm.evolve(X, objective_f, std::make_tuple(0.05),
-   std::make_tuple(),
-   std::make_tuple(0.8), std::make_tuple(0.5, 60.0));
+  std::size_t num_generations = 300;
+  for (auto i{0}; i<num_generations; ++i)
+  {
+    genetic_algorithm.evolve(X, objective_f, std::make_tuple(0.05),
+    std::make_tuple(),
+    std::make_tuple(0.8), std::make_tuple(0.5, 60.0));
+  }
+  
+  std::cout << "Last pop: \n" << X << "\n" << std::endl;
 
 
 }
