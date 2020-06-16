@@ -49,7 +49,5 @@ TEST(ga, evolve)
    std::make_tuple(),
    std::make_tuple(0.8), std::make_tuple(0.5, 60.0));
 
-  std::cout << "Selected pop: \n" << X << "\n" << std::endl;
-
 
 }

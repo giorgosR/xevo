@@ -65,13 +65,17 @@ namespace xnio
       std::size_t num_of_individuals = _shape[0];
       E y_norm(_Y);
       T _sum = xt::sum(_Y)();
+      E y_args_sort = xt::flip(xt::argsort(_Y), 0);
+      E y_sorted = xt::view(_Y, xt::keep(y_args_sort));
+      F X_sorted = xt::view(_X, xt::keep(y_args_sort), xt::all());
+
       for (auto i = 0; i < num_of_individuals; ++i)
       {
-        y_norm(i) = _Y(i) / _sum;
+        y_norm(i) = y_sorted(i) / _sum;
       }
 
       E y_cum_fitness = xt::cumsum(y_norm);
-
+      
       std::random_device rd;
       std::mt19937 gen(rd());
       T min_value = 0;
@@ -83,7 +87,7 @@ namespace xnio
       for (std::size_t i{0}; i < num_of_individuals; ++i)
       {
         T random_num = distribution(gen);
-        auto iter = std::upper_bound(y_cum_fitness.storage_cbegin(),
+        auto iter = std::lower_bound(y_cum_fitness.storage_cbegin(),
          y_cum_fitness.storage_cend(),
           random_num);
         std::size_t dis = 0;
@@ -102,7 +106,7 @@ namespace xnio
           dis = std::distance(y_cum_fitness.storage_cbegin(), iter);
         }
 
-        xt::view(X_out, i, xt::all()) = xt::view(_X, dis, xt::all()); 
+        xt::view(X_out, i, xt::all()) = xt::view(X_sorted, dis, xt::all()); 
 
       }
 

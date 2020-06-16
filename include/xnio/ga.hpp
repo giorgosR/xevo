@@ -56,7 +56,7 @@ template<class E, class INDI = Individual, class POP = Population,
    auto _Y = objective_f(_pop);
 
    E pop_selection = selection_f(_pop, _Y);
-  
+   
 
  }  
 
