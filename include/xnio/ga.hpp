@@ -75,7 +75,6 @@ template<class E, class INDI = Individual, class POP = Population,
    auto shape_of_cross = population_cross.shape();
    std::size_t cross_size = shape_of_cross[0];
 
-
    E mutation_population = xt::view(population_selection,
      xt::range(elite_size + cross_size,
        individual_size), xt::all());

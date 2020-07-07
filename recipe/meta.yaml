@@ -1,0 +1,36 @@
+{% set name = "xnio" %}
+{% set version = "0.0.1" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+ git_url: https://github.com/giorgosR/xnio
+ 
+build:
+ number: 0
+# script: build.sh
+
+ 
+Requirements:
+ Build:
+   - {{ compiler('cxx') }}
+   - cmake
+ run:
+   - xtensor
+   - xsimd
+
+about:
+  home: https://github.com/giorgosR/xnio
+  license: BSD 3-Clause
+  license_family: BSD
+  license_file: LICENSE
+  summary: The XNIO
+  description: C++ recipes for nature inspyred optimisation algorithms
+#  doc_url: http://xtensor.readthedocs.io
+  dev_url: https://github.com/giorgosR/xnio
+
+extra:
+  recipe-maintainers:
+    - giorgosR

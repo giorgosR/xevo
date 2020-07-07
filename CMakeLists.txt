@@ -38,6 +38,7 @@ find_package(xtensor REQUIRED)
 
 add_definitions(-DXTENSOR_ENABLE_XSIMD)
 add_definitions(-DXTENSOR_USE_XSIMD)
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -mavx2 -ffast-math")
 
 set(xnio_INCLUDE_DIRS ${xnio_SOURCE_DIR}/include)
 
