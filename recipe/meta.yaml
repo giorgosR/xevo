@@ -25,6 +25,16 @@ requirements:
   run:
     - {{ pin_compatible('xtensor', max_pin='x.x') }}
 
+test:
+  commands:
+    - test -d ${PREFIX}/include/xnio  # [unix]
+    - test -f ${PREFIX}/include/xnio/ga.hpp  # [unix]
+    - test -f ${PREFIX}/lib/cmake/xnio/xnioConfig.cmake  # [unix]
+    # - test -f ${PREFIX}/lib/cmake/xtensor/xtensorConfigVersion.cmake  # [unix]
+    # - if exist %LIBRARY_PREFIX%\include\xtensor\xarray.hpp (exit 0) else (exit 1)  # [win]
+    # - if exist %LIBRARY_PREFIX%\lib\cmake\xtensorConfig.cmake (exit 0) else (exit 1)  # [win]
+    # - if exist %LIBRARY_PREFIX%\lib\cmake\xtensorConfigVersion.cmake (exit 0) else (exit 1)  # [win]
+
 about:
   home: https://github.com/giorgosR/xnio
   license: BSD 3-Clause

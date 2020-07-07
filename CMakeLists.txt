@@ -80,20 +80,20 @@ if(INSTALL_LIB)
 	include(CMakePackageConfigHelpers)
 
 	install(TARGETS xnio
-					EXPORT ${PROJECT_NAME}-targets)
+					EXPORT xnio-targets)
 
 	# Makes the project importable from the build directory
-	export(EXPORT ${PROJECT_NAME}-targets
-				FILE "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake")
+	export(EXPORT xnio-targets
+				FILE "${CMAKE_CURRENT_BINARY_DIR}/xnioTargets.cmake")
 
 	install(FILES ${XNIO_HEADERS}
 					DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/xnio)
 
-	set(XNIO_CMAKECONFIG_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}" CACHE
+	set(XNIO_CMAKECONFIG_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/xnio" CACHE
 			STRING "install path for xnioConfig.cmake")
 
-	configure_package_config_file(${PROJECT_NAME}Config.cmake.in
-																"${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+	configure_package_config_file(xnioConfig.cmake.in
+																"${CMAKE_CURRENT_BINARY_DIR}/xnioConfig.cmake"
 																INSTALL_DESTINATION ${XNIO_CMAKECONFIG_INSTALL_DIR})
 endif(INSTALL_LIB)
 
