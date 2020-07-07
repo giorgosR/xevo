@@ -6,20 +6,24 @@ package:
   version: {{ version }}
 
 source:
- git_url: https://github.com/giorgosR/xnio
+ git_url: https://giorgosR:0314kemo@github.com/giorgosR/xnio
+# path: ../archive-latest.tar.gz
  
 build:
- number: 0
-# script: build.sh
+  number: 0
+  skip: true  # [win and vc<14]
 
- 
-Requirements:
- Build:
-   - {{ compiler('cxx') }}
-   - cmake
- run:
-   - xtensor
-   - xsimd
+requirements:
+  build:
+    - cmake
+    - {{ compiler('cxx') }}
+  host:
+    # - libblas
+    # - libcblas
+    # - liblapack
+    - xtensor >=0.21.2,<0.22.0
+  run:
+    - {{ pin_compatible('xtensor', max_pin='x.x') }}
 
 about:
   home: https://github.com/giorgosR/xnio

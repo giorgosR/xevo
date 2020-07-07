@@ -13,17 +13,18 @@ set(XNIO_VERSION_STRING "${XNIO_VERSION_MAJOR}"
 string(REPLACE ";" "" XNIO_VERSION_STRING "${XNIO_VERSION_STRING}")
 message(STATUS "XNIO version ${XNIO_VERSION_STRING}")
 
-option(ENABLE_THREADS "Enable multi-threading" ON) # Enabled by default
-option(INSTALL_LIB "Install xnio" OFF)
+option(ENABLE_THREADS "Enable multi-threading" OFF) # Enabled by default
+option(INSTALL_LIB "Install xnio" ON)
 option(BUILD_TESTS "Build tests" OFF)
 # add a target to generate API documentation with Doxygen
 option(BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" OFF)
+
+set(XNIO_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 if(BUILD_DOCUMENTATION)
   add_subdirectory(doc)
 endif(BUILD_DOCUMENTATION)
 
-set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake ${CMAKE_MODULE_PATH})
 
@@ -52,14 +53,49 @@ set(XNIO_SOURCES_TEST test/unittest_main.cpp
 											test/test_functors.cpp
 											test/test_ga.cpp)
 
-set(XNIO_INCLUDE include/xnio/ga.hpp
-                 include/xnio/functors.hpp)
+set(XNIO_HEADERS ${XNIO_INCLUDE}/xnio/ga.hpp
+								 ${XNIO_INCLUDE}/xnio/functors.hpp
+								 ${XNIO_INCLUDE}/xnio/analytical_functions.hpp)
 
 # if(INSTALL_LIB)
 #   FILE(GLOB files "${CMAKE_CURRENT_SOURCE_DIR}/include/xnio/*")
 #   INSTALL(FILES ${files} DESTINATION xnio)
 #   set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/lib/installed" CACHE PATH "Install directory.")
 # endif(INSTALL_LIB)
+
+add_library(xnio INTERFACE)
+
+target_include_directories(xnio INTERFACE
+    $<BUILD_INTERFACE:${XNIO_INCLUDE}>
+    $<INSTALL_INTERFACE:include>)
+
+target_compile_features(xnio INTERFACE cxx_std_14)
+
+#target_link_libraries(xnio INTERFACE xtl)
+
+# Install XNIO
+# ============
+if(INSTALL_LIB)
+	include(GNUInstallDirs)
+	include(CMakePackageConfigHelpers)
+
+	install(TARGETS xnio
+					EXPORT ${PROJECT_NAME}-targets)
+
+	# Makes the project importable from the build directory
+	export(EXPORT ${PROJECT_NAME}-targets
+				FILE "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake")
+
+	install(FILES ${XNIO_HEADERS}
+					DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/xnio)
+
+	set(XNIO_CMAKECONFIG_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}" CACHE
+			STRING "install path for xnioConfig.cmake")
+
+	configure_package_config_file(${PROJECT_NAME}Config.cmake.in
+																"${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+																INSTALL_DESTINATION ${XNIO_CMAKECONFIG_INSTALL_DIR})
+endif(INSTALL_LIB)
 
 if(BUILD_TESTS)
 	# Lib directories
