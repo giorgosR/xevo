@@ -95,6 +95,21 @@ if(INSTALL_LIB)
 	configure_package_config_file(xnioConfig.cmake.in
 																"${CMAKE_CURRENT_BINARY_DIR}/xnioConfig.cmake"
 																INSTALL_DESTINATION ${XNIO_CMAKECONFIG_INSTALL_DIR})
+	# xnio is header-only and does not depend on the architecture.
+	# Remove CMAKE_SIZEOF_VOID_P from xnioConfigVersion.cmake so that an xnioConfig.cmake
+	# generated for a 64 bit target can be used for 32 bit targets and vice versa.
+	set(_XNIO_CMAKE_SIZEOF_VOID_P ${CMAKE_SIZEOF_VOID_P})
+	unset(CMAKE_SIZEOF_VOID_P)
+	write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
+																	VERSION ${XNIO_VERSION_STRING}
+																	COMPATIBILITY AnyNewerVersion)
+	set(CMAKE_SIZEOF_VOID_P ${_XNIO_CMAKE_SIZEOF_VOID_P})
+	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/xnioConfig.cmake
+								${CMAKE_CURRENT_BINARY_DIR}/xnioConfigVersion.cmake
+					DESTINATION ${XTENSOR_CMAKECONFIG_INSTALL_DIR})
+	install(EXPORT xnio-targets
+					FILE xnioTargets.cmake
+					DESTINATION ${XTENSOR_CMAKECONFIG_INSTALL_DIR})
 endif(INSTALL_LIB)
 
 if(BUILD_TESTS)
