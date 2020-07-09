@@ -36,7 +36,7 @@ TEST(ga, evolve)
   std::array<std::size_t, 2> shape = {40, 2};
   xt::xarray<double> X = xt::zeros<double>(shape);
   
-  xnio::Branin objective_f;
+  xnio::Rosenbrock objective_f;
 
   xnio::ga genetic_algorithm;
   genetic_algorithm.initialise(X);
@@ -53,6 +53,11 @@ TEST(ga, evolve)
   }
   
   std::cout << "Last pop: \n" << X << "\n" << std::endl;
+  
+  double best_x1 = 0.666;
+  double best_x2 = 0.666;
 
+  EXPECT_NEAR(best_x1, X(0,0), 1e-003);
+  EXPECT_NEAR(best_x2, X(0,1), 1e-003);
 
 }

@@ -1,3 +1,17 @@
+/**
+ * @file analytical_functions.hpp
+ * @author Georgios E. Ragkousis (giorgosragos@gmail.com)
+ * @brief templated header file with functors for analytical functions.
+ * @version @PROJECT_NUMBER
+ * @date 2020-07
+ * 
+ * Distributed under the terms of the BSD 3-Clause License.
+ * 
+ * The full license is in the file LICENSE, distributed with this software.
+ *
+ * @copyright Copyright (c) 2020, Georgios E. Ragkousis
+ * 
+ */
 #ifndef __ANALYTICAL_FUNCTIONS_HPP__
 #define __ANALYTICAL_FUNCTIONS_HPP__
 
@@ -50,7 +64,15 @@ namespace xnio
     }
 
   private:
-
+    
+    /**
+     * @brief private method to evaluate branin function
+     * 
+     * @tparam E xtensor type
+     * @tparam value_type value type of E 
+     * @param X array to be evaluated
+     * @return auto array evaluated at X
+     */
     template <class E, typename value_type = typename std::decay_t<E>::value_type>
     inline auto evaluate(const xt::xexpression<E>& X)
     {
@@ -103,8 +125,39 @@ namespace xnio
      * @param X array to be evaluated
      * @return auto evaluated array
      */
-    template <class E, typename value_type = typename std::decay_t<E>::value_type>
+    template <class E, typename T = typename std::decay_t<E>::value_type>
     auto operator()(const xt::xexpression<E>& X)
+    {
+      double beta = 8.0;
+      auto y = evaluate(X);
+      auto max_index = xt::argmax(y)();
+      T y_max = y(max_index);
+      T factor = (-1)*(beta / y_max);
+      return xt::eval(xt::exp(factor * (y)));
+    }
+
+    /**
+     * @brief get the bounder of Rosenbrock function
+     * 
+     * @return std::pair<std::vector<double>, std::vector<double>> 
+     */
+    std::pair<std::vector<double>, std::vector<double>> bounder() const
+    {
+       return {{-3, -3}, {3, 3}};
+    }
+
+      private:
+
+    /**
+     * @brief private method to evaluate branin function
+     * 
+     * @tparam E xtensor type
+     * @tparam value_type value type of E 
+     * @param X array to be evaluated
+     * @return auto array evaluated at X
+     */
+    template <class E, typename value_type = typename std::decay_t<E>::value_type>
+    inline auto evaluate(const xt::xexpression<E>& X)
     {
       const E& _X = X.derived_cast();
 
@@ -125,16 +178,6 @@ namespace xnio
         xt::eval(100.0*xt::pow(xt::pow(X1, 2) - X2, 2) + xt::pow(1 - X1, 2));
 
       return y;
-    }
-
-    /**
-     * @brief get the bounder of Rosenbrock function
-     * 
-     * @return std::pair<std::vector<double>, std::vector<double>> 
-     */
-    std::pair<std::vector<double>, std::vector<double>> bounder() const
-    {
-       return {{-3, -3}, {3, 3}};
     }
 
   };

@@ -1,3 +1,17 @@
+/**
+ * @file ga.hpp
+ * @author Georgios E. Ragkousis (giorgosragos@gmail.com)
+ * @brief Templated header file for genetic algorithm.
+ * @version @PROJECT_NUMBER
+ * @date 2020-07
+ * 
+ * Distributed under the terms of the BSD 3-Clause License.
+ * 
+ * The full license is in the file LICENSE, distributed with this software.
+ * 
+ * @copyright Copyright (c) 2020, Georgios E. Ragkousis
+ * 
+ */
 #ifndef __GA_HPP__
 #define __GA_HPP__
 
@@ -8,20 +22,53 @@
 namespace xnio
 {
 
+/**
+ * @brief class for genetic algorithm
+ * 
+ */
 class ga
 {
 public:
 
-template<class E, class INDI = Individual, class POP = Population,
+/**
+ * @brief method to initialise population for ga
+ * 
+ * @tparam E xtensor type for generating the initial population
+ * @tparam POP functor for generating the population
+ * @tparam PopArgs optional type of arguments for population functor
+ * @tparam T value type of xtensor 
+ * @param X array of population
+ * @param popargs optional arguments for population functor
+ */
+template<class E, class POP = Population, typename... PopArgs, 
  typename T = typename std::decay_t<E>::value_type>
- void initialise(xt::xexpression<E>& X)
+ void initialise(xt::xexpression<E>& X, std::tuple<PopArgs...> popargs = std::make_tuple())
  {
-   E& _X = X.derived_cast();
-   INDI f_indi;
-   POP f_pop;
-   f_pop(_X, f_indi);
+   initialise(X, std::move(popargs), std::index_sequence_for<PopArgs...>{});
  }
 
+
+ /**
+  * @brief method to evolve the population
+  * 
+  * @tparam E xtensor type for population at the current generation.
+  * @tparam OBJ functor for objective function
+  * @tparam ELIT functor for elitism
+  * @tparam SEL functor for selection
+  * @tparam CROSS functor for crossover 
+  * @tparam MUT functor for mutation
+  * @tparam ElitArgs argument types for Elit functor
+  * @tparam SelArgs types of arguments for Selection functor
+  * @tparam CrossArgs types of arguments for cross over functor
+  * @tparam MutArgs types of arguments for mutation functor
+  * @tparam T value type of xtensor
+  * @param X array with population at current evolution
+  * @param objective_f objective function
+  * @param elitargs function for elitism
+  * @param selargs function for selection
+  * @param crossargs function for crossover
+  * @param mutargs function for mutation
+  */
  template<class E, class OBJ, class ELIT = Elitism, class SEL = Roulette_selection, class CROSS = Crossover,
   class MUT = Mutation_polynomial, typename... ElitArgs, typename... SelArgs, typename... CrossArgs,
   typename... MutArgs, typename T = typename std::decay_t<E>::value_type>
@@ -32,11 +79,55 @@ template<class E, class INDI = Individual, class POP = Population,
    evolve(X, objective_f, std::move(elitargs), std::move(selargs), std::move(crossargs), std::move(mutargs), 
    std::index_sequence_for<ElitArgs...>{}, std::index_sequence_for<SelArgs...>{}, std::index_sequence_for<CrossArgs...>{},
     std::index_sequence_for<MutArgs...>{});
- }  
- 
+ }
 
  private:
 
+ /**
+  * @brief private method to initialise population for ga
+  * 
+  * @tparam E xtensor type for initial population
+  * @tparam POP functor for generating the initial population
+  * @tparam PopArgs optional type of arguments for population functor
+  * @tparam PIs size of population arguments
+  * @tparam T value type of xtensor
+  * @param X xtensor array for initial population
+  * @param popargs 
+  */
+ template<class E, class POP = Population, typename... PopArgs,  std::size_t... PIs,  
+ typename T = typename std::decay_t<E>::value_type>
+ void initialise(xt::xexpression<E>& X, std::tuple<PopArgs...>&& popargs, std::index_sequence<PIs...>)
+ {
+   E& _X = X.derived_cast();
+   POP f_pop(std::get<PIs>(std::move(popargs))...);
+   f_pop(_X);
+ }
+
+ /**
+  * @brief method to evolve the population
+  * 
+  * @tparam E xtensor type for population at the current generation.
+  * @tparam OBJ functor for objective function
+  * @tparam ELIT functor for elitism
+  * @tparam SEL functor for selection
+  * @tparam CROSS functor for crossover 
+  * @tparam MUT functor for mutation
+  * @tparam ElitArgs argument types for Elit functor
+  * @tparam SelArgs types of arguments for Selection functor
+  * @tparam CrossArgs types of arguments for cross over functor
+  * @tparam MutArgs types of arguments for mutation functor
+  * @tparam EIs size of arguments for elit functor
+  * @tparam SIs size of arguments for selection functor
+  * @tparam CXIs size of arguments for crossover functor
+  * @tparam MIs size of arguments for mutation functor
+  * @tparam T value type of xtensor
+  * @param X array with population at current evolution
+  * @param objective_f objective function
+  * @param elitargs function for elitism
+  * @param selargs function for selection
+  * @param crossargs function for crossover
+  * @param mutargs function for mutation
+  */
  template<class E, class OBJ, class ELIT = Elitism, class SEL = Roulette_selection,
   class CROSS = Crossover,
  class MUT = Mutation_polynomial, typename... ElitArgs, typename... SelArgs, typename... CrossArgs,
@@ -88,7 +179,6 @@ template<class E, class INDI = Individual, class POP = Population,
 
    population = xt::concatenate(xt::xtuple(elite_population,
      population_cross, population_mutated), 0);
-
  }  
 
 };

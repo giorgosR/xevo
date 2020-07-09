@@ -1,0 +1,21 @@
+---
+document: GA
+title: Genetic algorithms
+subtitle: Selection, mating, crossover and mutation
+author: Georgios E. Ragkousis
+email: giorgosragos@gmail.com
+#audience: 
+#institute: 
+date: 28.02.2020
+theme: metropolis
+colortheme: seahorse
+# theme: Madrid
+# colortheme: dolphin
+fontfamily: sourcesanspro
+titlepage-note: This is the stand-up meeting.
+navigation: horizontal
+section-titles: true
+#header-includes:
+output:
+    slide_level: 2
+---

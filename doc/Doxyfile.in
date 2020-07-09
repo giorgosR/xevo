@@ -1,0 +1,101 @@
+PROJECT_NAME           = "xnio"
+PROJECT_NUMBER         = "@XNIO_VERSION_STRING@"
+PROJECT_BRIEF          = "XNIO Documentation"
+# PROJECT_LOGO           = "@CMAKE_CURRENT_SOURCE_DIR@/images/.svg"
+STRIP_FROM_PATH        = @PROJECT_SOURCE_DIR@ \
+                         @PROJECT_BINARY_DIR@
+FILE_PATTERNS          = @PROJECT_SOURCE_DIR@/include/xnio/*.h
+FULL_PATH_NAMES        = NO
+RECURSIVE              = YES
+SOURCE_BROWSER         = NO
+VERBATIM_HEADERS       = NO
+SHOW_INCLUDE_FILES     = NO
+EXTRACT_PRIVATE        = YES
+#ENABLE_PREPROCESSING   = YES
+#MACRO_EXPANSION        = YES
+#EXPAND_ONLY_PREDEF     = YES
+#PREDEFINED             = EXTERN_C \
+#                         XNIO_API \
+#                         __stdcall
+
+HIDE_UNDOC_MEMBERS     = YES
+
+#USE_MDFILE_AS_MAINPAGE = "@CMAKE_CURRENT_SOURCE_DIR@/main.md"
+
+#---------------------------------------------------------------------------
+# Configuration options related to the input files
+#---------------------------------------------------------------------------
+
+# The INPUT tag is used to specify the files and/or directories that contain
+# documented source files. You may enter file names like myfile.cpp or
+# directories like /usr/src/myproject. Separate the files or directories with
+# spaces. See also FILE_PATTERNS and EXTENSION_MAPPING
+# Note: If this tag is empty the current directory is searched.
+INPUT                  = @doxy_main_page@ \
+                         @PROJECT_SOURCE_DIR@ \
+                         @PROJECT_BINARY_DIR@
+
+#INPUT                  = "@CMAKE_CURRENT_SOURCE_DIR@/include/*.h" \
+#                         "@CMAKE_CURRENT_SOURCE_DIR@/installation.md" \
+#                         "@PROJECT_SOURCE_DIR@/.h"
+
+INPUT_ENCODING         = UTF-8
+
+#---------------------------------------------------------------------------
+# Configuration options related to the LaTeX output
+#---------------------------------------------------------------------------
+GENERATE_LATEX         = NO
+LATEX_OUTPUT           = latex
+LATEX_CMD_NAME         = latex
+MAKEINDEX_CMD_NAME     = makeindex
+COMPACT_LATEX          = NO
+PAPER_TYPE             = a4
+
+# The EXTRA_PACKAGES tag can be used to specify one or more LaTeX package names
+# that should be included in the LaTeX output. The package can be specified just
+# by its name or with the correct syntax as to be used with the LaTeX
+# \usepackage command. To get the times font for instance you can specify :
+# EXTRA_PACKAGES=times or EXTRA_PACKAGES={times}
+# To use the option intlimits with the amsmath package you can specify:
+# EXTRA_PACKAGES=[intlimits]{amsmath}
+# If left blank no extra packages will be included.
+# This tag requires that the tag GENERATE_LATEX is set to YES.
+#EXTRA_PACKAGES         =
+#LATEX_HEADER           = "@CMAKE_CURRENT_SOURCE_DIR@/.tex"
+#LATEX_FOOTER           = "@CMAKE_CURRENT_SOURCE_DIR@/footer.tex"
+
+# The LATEX_EXTRA_STYLESHEET tag can be used to specify additional user-defined
+# LaTeX style sheets that are included after the standard style sheets created
+# by doxygen. Using this option one can overrule certain style aspects. Doxygen
+# will copy the style sheet files to the output directory.
+# Note: The order of the extra style sheet files is of importance (e.g. the last
+# style sheet in the list overrules the setting of the previous ones in the
+# list).
+# This tag requires that the tag GENERATE_LATEX is set to YES.
+
+#LATEX_EXTRA_STYLESHEET =
+
+# The LATEX_EXTRA_FILES tag can be used to specify one or more extra images or
+# other source files which should be copied to the LATEX_OUTPUT output
+# directory. Note that the files will be copied as-is; there are no commands or
+# markers available.
+# This tag requires that the tag GENERATE_LATEX is set to YES.
+
+#LATEX_EXTRA_FILES      += "@CMAKE_CURRENT_SOURCE_DIR@/images/.pdf"
+#LATEX_EXTRA_FILES      += "@CMAKE_CURRENT_SOURCE_DIR@/images/.pdf"
+#LATEX_EXTRA_FILES      += "@CMAKE_CURRENT_SOURCE_DIR@/images/backcoverlayer.pdf"
+
+#PDF_HYPERLINKS         = YES
+#USE_PDFLATEX           = YES
+
+#---------------------------------------------------------------------------
+# Configuration options related to the MATHJAX output
+#---------------------------------------------------------------------------
+USE_MATHJAX             = YES
+
+#---------------------------------------------------------------------------
+# Configuration options related to the XML output
+#---------------------------------------------------------------------------
+GENERATE_XML           = YES
+XML_OUTPUT             = xml
+XML_PROGRAMLISTING     = YES

@@ -1,0 +1,6 @@
+trigger:
+  - master
+  - development
+
+jobs:
+  - template: ./.azure-pipelines/azure-pipelines-linux.yml

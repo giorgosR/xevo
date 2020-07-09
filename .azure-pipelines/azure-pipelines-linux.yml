@@ -1,0 +1,45 @@
+jobs:
+  - job: 'Linux'
+    strategy:
+      matrix:
+        clang_6:
+          llvm_version: '6.0'
+        clang_7:
+          llvm_version: '7'
+        clang_8:
+          llvm_version: '8'
+        clang_9:
+          llvm_version: '9'
+    pool:
+      vmImage: ubuntu-16.04
+    variables:
+      CC: clang-$(llvm_version)
+      CXX: clang++-$(llvm_version)
+    timeoutInMinutes: 360
+    steps:
+
+      - script: |
+          sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+          LLVM_VERSION=$(llvm_version)
+          get -O - http://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+          sudo add-apt-repository "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-$LLVM_VERSION main"
+          sudo apt-get update
+          sudo apt-get --no-install-suggests --no-install-recommends install clang-$(llvm_version)
+        displayName: Install build toolchain
+
+      - bash: echo "##vso[task.prependpath]$CONDA/bin"
+        displayName: Add conda to PATH
+
+      - bash: conda env create -f conda/xnio.yml
+        displayName: create conda env
+      
+      - bash: |
+          source activate xnio
+          mkdir build_tests && cd build_tests
+          cmake -G "Ninja" -DCMAKE_PREFIX_PATH=$CONDA_PREFIX -DCMAKE_SYSTEM_IGNORE_PATH=/usr/lib -DBUILD_TESTS=ON ../
+          ninja xnio_tests && ./xnio_tests
+        displayName: build
+
+
+
+# - template: unix-build.yml

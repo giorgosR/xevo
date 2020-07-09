@@ -1,3 +1,17 @@
+/**
+ * @file functors.hpp
+ * @author Georgios E. Ragkousis (giorgosragos@gmail.com)
+ * @brief templated header file for defining (default) functors for evolutionary algorithms.
+ * @version @PROJECT_NUMBER
+ * @date 2020-07
+ * 
+ * Distributed under the terms of the BSD 3-Clause License.
+ * 
+ * The full license is in the file LICENSE, distributed with this software.
+ *
+ * @copyright Copyright (c) 2020, Georgios E. Ragkousis
+ * 
+ */
 #ifndef __FUNCTORS_H__
 #define __FUNCTORS_H__
 
@@ -15,25 +29,35 @@
 namespace xnio
 {
 
+  /**
+   * @brief functor for generating initial population
+   * 
+   */
   struct Population
   {
-    template <class E, class F_individual, typename T = typename std::decay_t<E>::value_type>
-    void operator()(xt::xexpression<E>& X, F_individual f)
+    template <class E, typename T = typename std::decay_t<E>::value_type>
+    void operator()(xt::xexpression<E>& X)
     {
       E& _X = X.derived_cast();
       std::size_t num_of_indiv = _X.shape()[0];
       for (std::size_t i{0}; i < num_of_indiv; ++i)
       {
         auto xe = xt::view(_X, i, xt::all());
-        f( xe );  
+        individual( xe );  
       } 
     }
-  };
 
-  struct Individual
-  {
+    private:
+    
+    /**
+     * @brief method to generate an individual
+     * 
+     * @tparam E xtensor type 
+     * @tparam T value type of E 
+     * @param X xtensor array
+     */
     template <class E, typename T = typename std::decay_t<E>::value_type>
-    void operator()(xt::xexpression<E>& X)
+    void individual(xt::xexpression<E>& X)
     {
       E& _X = X.derived_cast();
       T lower_limit = 0;
@@ -50,9 +74,12 @@ namespace xnio
         _X(i) = std::roundf(unif_dist(rng) * 100) / 100.0;
       }
     }
-
   };
 
+  /**
+   * @brief functor to calculate individual selection with Roulette method.
+   * 
+   */
   struct Roulette_selection
   {
     template <class F, class E, typename T = typename std::decay_t<F>::value_type>
@@ -120,6 +147,11 @@ namespace xnio
    */
   struct Crossover
   {
+    /**
+     * @brief Constructor
+     * 
+     * @param crossoverrate cross over rate 
+     */
     Crossover(double crossoverrate) :
      _crossover_rate(crossoverrate)
      {
@@ -168,7 +200,7 @@ namespace xnio
       return _X_out;
     }
     private:
-    double _crossover_rate;
+    double _crossover_rate; ///< cross over rate
   };
 
 
@@ -209,14 +241,6 @@ namespace xnio
 
     }
 
-    /**
-     * @brief 
-     * 
-     * @tparam E 
-     * @tparam T 
-     * @param X 
-     * @return auto 
-     */
     template <class E, typename T = typename std::decay_t<E>::value_type>
     auto operator()(const xt::xexpression<E>& X)
     {
@@ -269,6 +293,11 @@ namespace xnio
    */
   struct Elitism
   {
+    /**
+     * @brief Constructor
+     * 
+     * @param er elit rate
+     */
     Elitism(double er) : _elite_rate(er)
     {
 
@@ -299,7 +328,7 @@ namespace xnio
       return _X_out;
     }
   private:
-    double _elite_rate;
+    double _elite_rate; ///< elit rate
   };
 
 

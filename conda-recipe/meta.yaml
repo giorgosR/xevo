@@ -29,11 +29,15 @@ test:
   commands:
     - test -d ${PREFIX}/include/xnio  # [unix]
     - test -f ${PREFIX}/include/xnio/ga.hpp  # [unix]
+    - test -f ${PREFIX}/include/xnio/analytical_functions.hpp  # [unix]
+    - test -f ${PREFIX}/include/xnio/functors.hpp  # [unix]
     - test -f ${PREFIX}/lib/cmake/xnio/xnioConfig.cmake  # [unix]
-    # - test -f ${PREFIX}/lib/cmake/xtensor/xtensorConfigVersion.cmake  # [unix]
-    # - if exist %LIBRARY_PREFIX%\include\xtensor\xarray.hpp (exit 0) else (exit 1)  # [win]
-    # - if exist %LIBRARY_PREFIX%\lib\cmake\xtensorConfig.cmake (exit 0) else (exit 1)  # [win]
-    # - if exist %LIBRARY_PREFIX%\lib\cmake\xtensorConfigVersion.cmake (exit 0) else (exit 1)  # [win]
+    - test -f ${PREFIX}/lib/cmake/xnio/xnioConfigVersion.cmake  # [unix]
+    - if exist %LIBRARY_PREFIX%\include\xnio\ga.hpp (exit 0) else (exit 1)  # [win]
+    - if exist %LIBRARY_PREFIX%\include\xnio\analytical_functions.hpp (exit 0) else (exit 1)  # [win]
+    - if exist %LIBRARY_PREFIX%\include\xnio\functors.hpp (exit 0) else (exit 1)  # [win]
+    - if exist %LIBRARY_PREFIX%\lib\cmake\xnioConfig.cmake (exit 0) else (exit 1)  # [win]
+    - if exist %LIBRARY_PREFIX%\lib\cmake\xnioConfigVersion.cmake (exit 0) else (exit 1)  # [win]
 
 about:
   home: https://github.com/giorgosR/xnio
