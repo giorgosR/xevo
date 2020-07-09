@@ -113,22 +113,18 @@ if(INSTALL_LIB)
 endif(INSTALL_LIB)
 
 if(BUILD_TESTS)
-	# Lib directories
-	# ---------------
-	# Third-party library
-	# Third-party library
-	include(ExternalProject)
-	ExternalProject_Add(googletest
-	PREFIX "${CMAKE_BINARY_DIR}/lib"
-	GIT_REPOSITORY "https://github.com/google/googletest.git"
-	GIT_TAG "master"
-	CMAKE_ARGS 
-		"-DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/lib/installed" 
-		"-DCMAKE_BUILD_TYPE=Debug"
-		"-Dgtest_force_shared_crt=ON"
-	)
-	link_directories(${CMAKE_BINARY_DIR}/lib/installed/lib)
-	message("google test lib dir: ${CMAKE_BINARY_DIR}/lib/installed/lib")
+  include(ExternalProject)
+  include(External_googletest)
+  ADD_DEFINITIONS(-DTEST_XNIO)
+  if(UNIX)
+    set(GTEST_LIBRARIES ${CMAKE_BINARY_DIR}/lib/installed/lib/libgtestd.a
+                        ${CMAKE_BINARY_DIR}/lib/installed/lib/libgtest_maind.a)
+    message("GTEST_LIBS: ${GTEST_LIBRARIES}")
+  else()
+   set(GTEST_LIBRARIES ${CMAKE_BINARY_DIR}/lib/installed/lib/gtestd.lib
+                       ${CMAKE_BINARY_DIR}/lib/installed/lib/libgtest_maind.lib)
+   message("GTEST_LIBS: ${GTEST_LIBRARIES}")
+  endif(UNIX)
 endif(BUILD_TESTS)
 
 if(BUILD_TESTS)
@@ -137,9 +133,8 @@ if(BUILD_TESTS)
                                               ${xtensor_INCLUDE_DIRS}
                                               ${CMAKE_BINARY_DIR}/lib/installed/include)
 
- target_link_libraries(xnio_tests gtestd gtest_maind ${CMAKE_THREAD_LIBS_INIT})
+ target_link_libraries(xnio_tests ${GTEST_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
  add_dependencies(xnio_tests googletest)
- set_target_properties(xnio_tests PROPERTIES EXCLUDE_FROM_ALL TRUE)
 endif(BUILD_TESTS)
 
 # if(MSVC)
