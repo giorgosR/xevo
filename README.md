@@ -1,3 +1,5 @@
+[![Build Status](https://dev.azure.com/giorgosragos/giorgosragos/_apis/build/status/giorgosR.xnio?branchName=master)](https://dev.azure.com/giorgosragos/giorgosragos/_build/latest?definitionId=2&branchName=master)
+
 ![xnio](doc/images/xnio_logo.png)
 
 # XNIO (Nature-inspyred optimisation algorithms)
