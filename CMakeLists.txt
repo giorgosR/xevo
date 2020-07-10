@@ -13,7 +13,7 @@ set(XNIO_VERSION_STRING "${XNIO_VERSION_MAJOR}"
 string(REPLACE ";" "" XNIO_VERSION_STRING "${XNIO_VERSION_STRING}")
 message(STATUS "XNIO version ${XNIO_VERSION_STRING}")
 
-option(ENABLE_THREADS "Enable multi-threading" OFF) # Enabled by default
+option(ENABLE_THREADS "Enable multi-threading" ON) # Enabled by default
 option(INSTALL_LIB "Install xnio" ON)
 option(BUILD_TESTS "Build tests" OFF)
 # add a target to generate API documentation with Doxygen
@@ -115,7 +115,7 @@ endif(INSTALL_LIB)
 if(BUILD_TESTS)
   include(ExternalProject)
   include(External_googletest)
-  ADD_DEFINITIONS(-DTEST_XNIO)
+  ADD_DEFINITIONS(-DTEST)
   if(UNIX)
     set(GTEST_LIBRARIES ${CMAKE_BINARY_DIR}/lib/installed/lib/libgtestd.a
                         ${CMAKE_BINARY_DIR}/lib/installed/lib/libgtest_maind.a)
@@ -129,11 +129,11 @@ endif(BUILD_TESTS)
 
 if(BUILD_TESTS)
  add_executable(xnio_tests ${XNIO_SOURCES_TEST} ${XNIO_INCLUDE})
- target_include_directories(xnio_tests PUBLIC ${xnio_INCLUDE_DIRS} 
+ target_include_directories(xnio_tests PRIVATE ${xnio_INCLUDE_DIRS} 
                                               ${xtensor_INCLUDE_DIRS}
                                               ${CMAKE_BINARY_DIR}/lib/installed/include)
 
- target_link_libraries(xnio_tests ${GTEST_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+ target_link_libraries(xnio_tests PRIVATE ${GTEST_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
  add_dependencies(xnio_tests googletest)
 endif(BUILD_TESTS)
 

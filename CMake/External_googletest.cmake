@@ -7,6 +7,8 @@ CMAKE_ARGS
     "-DCMAKE_BUILD_TYPE=Debug"
     "-DCMAKE_CXX_COMPILER=${CXX}"
     "-DCMAKE_C_COMPILER=${CC}"
+BUILD_BYPRODUCTS "${CMAKE_BINARY_DIR}/lib/installed/lib/libgtestd.a;${CMAKE_BINARY_DIR}/lib/installed/lib/libgtest_maind.a"
+BUILD_COMMAND ${CMAKE_COMMAND} --build ./
 )
 
 
