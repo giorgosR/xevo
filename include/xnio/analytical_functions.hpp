@@ -27,7 +27,8 @@ namespace xnio
    * @brief branin function modified by Forrester et al. 2006
    *
    * \f[
-   *   f(x, y) = a*(X2 - b*X1*X1 + c*X1 - d)**2 + e*(1-f)*\cos{x1} + e)+5*_x1
+   *   f(x) = ( x_2 - \frac{5.1}{4\pi^2}x_2 + \frac{5}{\pi}x_1 - 6 )^2 + 10\left[ (1 - \frac{1}{8\pi})\cos{x_1} + 1 \right] + 5x_1\\
+				with \quad x_1 \in \left[-5,10\right], x_2 \in \left[0,15\right]
    * \f] 
    * 
    */
