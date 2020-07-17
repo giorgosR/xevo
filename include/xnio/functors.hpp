@@ -331,6 +331,57 @@ namespace xnio
     double _elite_rate; ///< elit rate
   };
 
+  /**
+   * @brief Functor for terminating evolutionary algorithm
+   *
+   */
+  struct Terminate_gen_max
+  {
+    /**
+     * @brief Construct a new Terminate_gen_max object
+     * 
+     * @param generations maximum number of generations
+     * @param index current generation number
+     */
+    Terminate_gen_max(std::size_t generations, std::size_t index) : 
+    _generations{generations}, _index{index}
+    {
+
+    }
+
+    template <class E, class F,
+      typename T = typename std::decay_t<E>::value_type>
+      bool operator()(const xt::xexpression<F>& X, const xt::xexpression<E>& Y)
+    {
+      const F& _X = X.derived_cast();
+      const E& _Y = Y.derived_cast();
+
+      return (_index < _generations);
+    }
+  private:
+    std::size_t _generations; ///< number of generations
+    std::size_t _index; ///< generation number
+  };
+
+
+  /**
+   * @brief Functor for terminating evolutionary algorithm
+   *  by setting a tolerance (y_best_gen - y_best_gen_n <= tol)
+   *
+   */
+  struct Terminate_tol
+  {
+    template <class E, class F,
+      typename T = typename std::decay_t<E>::value_type>
+      T operator()(const xt::xexpression<F>& X, const xt::xexpression<E>& Y)
+    {
+      const F& _X = X.derived_cast();
+      const E& _Y = Y.derived_cast();
+      T best = _Y(0);
+      return best;
+    }
+
+  };
 
 }
 

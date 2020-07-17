@@ -28,3 +28,21 @@ TEST(functors, population)
 
   EXPECT_TRUE(is_between_limits); 
 }
+
+TEST(functors, Terminate_gen_max)
+{
+  std::array<std::size_t, 2> shape = {20, 2};
+  xt::xarray<double> X = xt::zeros<double>(shape);
+  xt::xarray<double> Y = xt::zeros<double>({20});
+  xnio::Terminate_gen_max term_f(200, 199);
+
+  bool run = term_f(X, Y);
+
+  EXPECT_TRUE(run);
+
+  xnio::Terminate_gen_max term_f2(200, 200);
+
+  run = term_f2(X, Y);
+
+  EXPECT_FALSE(run);
+}
