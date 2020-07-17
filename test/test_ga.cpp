@@ -108,8 +108,10 @@ TEST(ga, auto_evolve_tol)
 
   std::size_t gen_i{0};
   std::size_t max_generations{300};
+  std::size_t stall{10};
   double tol = std::numeric_limits<double>::max();
-  while((tol > 1e-009) && (gen_i < max_generations))
+  std::size_t stall_i{0};
+  while((stall_i < stall) && (gen_i < max_generations))
   {
     auto y_best_n = genetic_algorithm.evolve<xtensor_x_type, objective_type,
      elitism_type, selection_type, crossover_type, mutation_type, termination_type>(X, objective_f,
@@ -117,14 +119,24 @@ TEST(ga, auto_evolve_tol)
       std::make_tuple(0.5, 60.0), std::make_tuple());
     tol = fabs(y_best_n - y_best);
     y_best = y_best_n;
+
+    if (tol <= 1e-006)
+    {
+      stall_i += 1;
+    }
+    else
+    {
+      stall_i = 0;
+    }
+    
     gen_i += 1;
   }
-  
+
   double best_x1 = 0.666;
   double best_x2 = 0.666;
 
   EXPECT_NEAR(best_x1, X(0,0), 1e-003);
   EXPECT_NEAR(best_x2, X(0,1), 1e-003);
 
-  EXPECT_TRUE((tol<=1e-009) && (gen_i < max_generations));
+  EXPECT_TRUE((stall_i == stall) && (gen_i < max_generations));
 }
