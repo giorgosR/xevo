@@ -34,7 +34,7 @@ jobs:
         displayName: create conda env
       
       - bash: |
-          source activate xnio
+          source activate xevo
           mkdir build_tests && cd build_tests
           cmake -G "Ninja" -DCMAKE_PREFIX_PATH=$CONDA_PREFIX -DCMAKE_SYSTEM_IGNORE_PATH=/usr/lib -DBUILD_TESTS=ON -DINSTALL_LIB=OFF ../
           ninja xevo_tests && ./xevo_tests
