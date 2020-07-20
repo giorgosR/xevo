@@ -19,14 +19,14 @@ import sys
 
 # -- Project information -----------------------------------------------------
 
-project = u'xnio'
+project = u'xevo'
 copyright = u'2020, Georgios E. Ragkousis'
 author = u'Georgios E. Ragkousis'
 
 # The short X.Y version
-version = u'@XNIO_VERSION_STRING@'
+version = u'@XEVO_VERSION_STRING@'
 # The full version, including alpha/beta/rc tags
-release = u'@XNIO_VERSION_STRING@'
+release = u'@XEVO_VERSION_STRING@'
 
 
 # -- General configuration ---------------------------------------------------
@@ -86,7 +86,7 @@ html_theme = 'sphinx_rtd_theme'
 #
 # html_theme_options = {}
 
-html_logo = '@SPHINX_SOURCE@/images/xnio_logo.png'
+html_logo = '@SPHINX_SOURCE@/images/xevo_logo.png'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -107,7 +107,7 @@ html_static_path = ['_static']
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'xnio'
+htmlhelp_basename = 'xevo'
 
 
 # -- Options for LaTeX output ------------------------------------------------
@@ -136,7 +136,7 @@ latex_elements = {
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'xnio', u'xnio Documentation',
+    (master_doc, 'xevo', u'xevo Documentation',
      [author], 1)
 ]
 
@@ -147,14 +147,14 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'xnio', u'xnio Documentation',
-     author, 'xnio', 'One line description of project.',
+    (master_doc, 'xevo', u'xevo Documentation',
+     author, 'xevo', 'One line description of project.',
      'Miscellaneous'),
 ]
 
  
 # Breathe Configuration
-breathe_default_project = "xnio"
+breathe_default_project = "xevo"
 
 #breathe_default_members = ('members', 'undoc-members')
 

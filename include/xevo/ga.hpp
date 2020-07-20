@@ -19,7 +19,7 @@
 
 #include "functors.hpp"
 
-namespace xnio
+namespace xevo
 {
 
 /**

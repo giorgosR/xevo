@@ -1,10 +1,10 @@
-PROJECT_NAME           = "xnio"
-PROJECT_NUMBER         = "@XNIO_VERSION_STRING@"
-PROJECT_BRIEF          = "XNIO Documentation"
+PROJECT_NAME           = "xevo"
+PROJECT_NUMBER         = "@XEVO_VERSION_STRING@"
+PROJECT_BRIEF          = "XEVO Documentation"
 # PROJECT_LOGO           = "@CMAKE_CURRENT_SOURCE_DIR@/images/.svg"
 STRIP_FROM_PATH        = @PROJECT_SOURCE_DIR@ \
                          @PROJECT_BINARY_DIR@
-FILE_PATTERNS          = @PROJECT_SOURCE_DIR@/include/xnio/*.h
+FILE_PATTERNS          = @PROJECT_SOURCE_DIR@/include/xevo/*.h
 FULL_PATH_NAMES        = NO
 RECURSIVE              = YES
 SOURCE_BROWSER         = NO
@@ -15,7 +15,7 @@ EXTRACT_PRIVATE        = YES
 #MACRO_EXPANSION        = YES
 #EXPAND_ONLY_PREDEF     = YES
 #PREDEFINED             = EXTERN_C \
-#                         XNIO_API \
+#                         XEVO_API \
 #                         __stdcall
 
 HIDE_UNDOC_MEMBERS     = YES

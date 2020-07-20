@@ -1,4 +1,4 @@
-name: xnio
+name: xevo
 channels:
   - defaults
   - conda-forge

@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 
-#include "xnio/ga.hpp"
-#include "xnio/analytical_functions.hpp"
+#include "xevo/ga.hpp"
+#include "xevo/analytical_functions.hpp"
 
 #include "xtensor/xio.hpp"
 
@@ -11,7 +11,7 @@ TEST(ga, instatiate)
   std::array<std::size_t, 2> shape = {20, 2};
   xt::xarray<double> X = xt::zeros<double>(shape);
   
-  xnio::ga genetic_algorithm;
+  xevo::ga genetic_algorithm;
   genetic_algorithm.initialise(X);
 
   bool is_between_limits = true;  
@@ -36,9 +36,9 @@ TEST(ga, void_evolve)
   std::array<std::size_t, 2> shape = {40, 2};
   xt::xarray<double> X = xt::zeros<double>(shape);
   
-  xnio::Rosenbrock objective_f;
+  xevo::Rosenbrock objective_f;
 
-  xnio::ga genetic_algorithm;
+  xevo::ga genetic_algorithm;
   genetic_algorithm.initialise(X);
 
   std::size_t num_generations = 300;
@@ -62,9 +62,9 @@ TEST(ga, auto_evolve)
   std::array<std::size_t, 2> shape = {40, 2};
   xt::xarray<double> X = xt::zeros<double>(shape);
   
-  xnio::Rosenbrock objective_f;
+  xevo::Rosenbrock objective_f;
 
-  xnio::ga genetic_algorithm;
+  xevo::ga genetic_algorithm;
   genetic_algorithm.initialise(X);
 
   std::size_t gen_i{0};
@@ -88,19 +88,19 @@ TEST(ga, auto_evolve)
 TEST(ga, auto_evolve_tol)
 {
   using xtensor_x_type = xt::xarray<double>;
-  using objective_type = xnio::Rosenbrock;
-  using elitism_type = xnio::Elitism;
-  using selection_type = xnio::Roulette_selection;
-  using crossover_type = xnio::Crossover;
-  using mutation_type = xnio::Mutation_polynomial;
-  using termination_type = xnio::Terminate_tol;
+  using objective_type = xevo::Rosenbrock;
+  using elitism_type = xevo::Elitism;
+  using selection_type = xevo::Roulette_selection;
+  using crossover_type = xevo::Crossover;
+  using mutation_type = xevo::Mutation_polynomial;
+  using termination_type = xevo::Terminate_tol;
 
   std::array<std::size_t, 2> shape = {40, 2};
   xtensor_x_type X = xt::zeros<double>(shape);
   
-  xnio::Rosenbrock objective_f;
+  xevo::Rosenbrock objective_f;
 
-  xnio::ga genetic_algorithm;
+  xevo::ga genetic_algorithm;
   genetic_algorithm.initialise(X);
 
   auto y = objective_f(X);

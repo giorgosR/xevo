@@ -2,14 +2,14 @@
 
 #include "xtensor/xio.hpp"
 
-#include "xnio/functors.hpp"
+#include "xevo/functors.hpp"
 
 TEST(functors, population)
 {
   std::array<std::size_t, 2> shape = {20, 2};
   xt::xarray<double> X = xt::zeros<double>(shape);
 
-  xnio::Population pop_f;
+  xevo::Population pop_f;
 
   pop_f(X);
 
@@ -34,13 +34,13 @@ TEST(functors, Terminate_gen_max)
   std::array<std::size_t, 2> shape = {20, 2};
   xt::xarray<double> X = xt::zeros<double>(shape);
   xt::xarray<double> Y = xt::zeros<double>({20});
-  xnio::Terminate_gen_max term_f(200, 199);
+  xevo::Terminate_gen_max term_f(200, 199);
 
   bool run = term_f(X, Y);
 
   EXPECT_TRUE(run);
 
-  xnio::Terminate_gen_max term_f2(200, 200);
+  xevo::Terminate_gen_max term_f2(200, 200);
 
   run = term_f2(X, Y);
 

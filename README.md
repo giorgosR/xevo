@@ -1,31 +1,31 @@
-[![Build Status](https://dev.azure.com/giorgosragos/giorgosragos/_apis/build/status/giorgosR.xnio?branchName=master)](https://dev.azure.com/giorgosragos/giorgosragos/_build/latest?definitionId=2&branchName=master)
+[![Build Status](https://dev.azure.com/giorgosragos/giorgosragos/_apis/build/status/giorgosR.xevo?branchName=master)](https://dev.azure.com/giorgosragos/giorgosragos/_build/latest?definitionId=2&branchName=master)
 
-![xnio](doc/images/xnio_logo.png)
+![xevo](doc/images/xevo_logo.png)
 
-# XNIO (Nature-inspyred optimisation algorithms)
+# xevo (Nature inspired evolutionary algorithms)
 
 This is the `git` repository for nature inspyred optimisation algorithms.
 
 ## Dependencies
 
-`xnio` is based on `xtensor` developed by `QuantStack`.
+`xevo` is based on `xtensor` developed by `QuantStack`.
 
 ## Clone
 
 To clone the repository type:
 
 ```shell
-git clone https://github.com/giorgosR/xnio.git
+git clone https://github.com/giorgosR/xevo.git
 ```
 
 ## Install
 
-You can install `xnio` from `conda` or build the source with `cmake`.
+You can install `xevo` from `conda` or build the source with `cmake`.
 
 * Anaconda
 
 ```shell
-conda install xnio -c conda-forge 
+conda install xevo -c conda-forge 
 ```
 
 * CMAKE

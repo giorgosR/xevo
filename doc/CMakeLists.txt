@@ -48,7 +48,7 @@ if(${BUILD_DOCUMENTATION} MATCHES ON)
             COMMAND 
                 ${SPHINX_EXECUTABLE} -b html
                 # Tell Breathe where to find the Doxygen output
-                -Dbreathe_projects.xnio=${CMAKE_CURRENT_BINARY_DIR}/xml
+                -Dbreathe_projects.xevo=${CMAKE_CURRENT_BINARY_DIR}/xml
                 ${SPHINX_SOURCE} ${SPHINX_BUILD}
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
             DEPENDS 

@@ -1,9 +1,9 @@
-# xnio cmake module
+# xevo cmake module
 # This module sets the following variables in your project::
 #
-#   xnio_FOUND - true if xnio found on the system
-#   xnio_INCLUDE_DIRS - the directory containing xnio headers
-#   xnio_LIBRARY - empty
+#   xevo_FOUND - true if xevo found on the system
+#   xevo_INCLUDE_DIRS - the directory containing xevo headers
+#   xevo_LIBRARY - empty
 
 @PACKAGE_INIT@
 
@@ -16,14 +16,14 @@ if(NOT TARGET @PROJECT_NAME@)
 endif()
 
 if (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} VERSION_GREATER_EQUAL 3.11)
-    if(NOT TARGET xnio::optimize)
-        add_library(xnio::optimize INTERFACE IMPORTED)
+    if(NOT TARGET xevo::optimize)
+        add_library(xevo::optimize INTERFACE IMPORTED)
         # Microsoft compiler
         if(CMAKE_${COMPILER_LANGUAGE}_COMPILER_IS_MSVC)
-            target_compile_options(xnio::optimize INTERFACE /EHsc /MP /bigobj)
+            target_compile_options(xevo::optimize INTERFACE /EHsc /MP /bigobj)
         # gcc, clang, ...
         else()
-            target_compile_options(xnio::optimize INTERFACE -march=native)
+            target_compile_options(xevo::optimize INTERFACE -march=native)
         endif()
     endif()
 endif()

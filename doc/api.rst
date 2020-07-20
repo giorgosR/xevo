@@ -1,45 +1,45 @@
-xnio C++ API documentation
+xevo C++ API documentation
 ============================
 
 Analytical functions
 --------------------
 
-.. doxygenstruct:: xnio::Branin 
-   :project: xnio
+.. doxygenstruct:: xevo::Branin 
+   :project: xevo
    :members:
 
-.. doxygenstruct:: xnio::Rosenbrock 
-   :project: xnio
+.. doxygenstruct:: xevo::Rosenbrock 
+   :project: xevo
    :members:
 
 
 Functors
 --------
 
-.. doxygenstruct:: xnio::Population 
-   :project: xnio
+.. doxygenstruct:: xevo::Population 
+   :project: xevo
    :members:
 
-.. doxygenstruct:: xnio::Roulette_selection 
-   :project: xnio
+.. doxygenstruct:: xevo::Roulette_selection 
+   :project: xevo
    :members:
 
-.. doxygenstruct:: xnio::Crossover
-   :project: xnio
+.. doxygenstruct:: xevo::Crossover
+   :project: xevo
    :members:
 
-.. doxygenstruct:: xnio::Mutation_polynomial 
-   :project: xnio
+.. doxygenstruct:: xevo::Mutation_polynomial 
+   :project: xevo
    :members:
 
-.. doxygenstruct:: xnio::Elitism
-   :project: xnio
+.. doxygenstruct:: xevo::Elitism
+   :project: xevo
    :members:
 
 
 Evolutionary algorithms
 -----------------------
 
-.. doxygenclass:: xnio::ga 
-   :project: xnio
+.. doxygenclass:: xevo::ga 
+   :project: xevo
    :members:
