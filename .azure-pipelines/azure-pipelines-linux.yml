@@ -30,14 +30,14 @@ jobs:
       - bash: echo "##vso[task.prependpath]$CONDA/bin"
         displayName: Add conda to PATH
 
-      - bash: conda env create -f conda/xnio.yml
+      - bash: conda env create -f conda/xevo.yml
         displayName: create conda env
       
       - bash: |
           source activate xnio
           mkdir build_tests && cd build_tests
           cmake -G "Ninja" -DCMAKE_PREFIX_PATH=$CONDA_PREFIX -DCMAKE_SYSTEM_IGNORE_PATH=/usr/lib -DBUILD_TESTS=ON -DINSTALL_LIB=OFF ../
-          ninja xnio_tests && ./xnio_tests
+          ninja xevo_tests && ./xevo_tests
         displayName: build
 
 

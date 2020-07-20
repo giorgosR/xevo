@@ -3,6 +3,7 @@
 
 # ignore builds
 build*
+!conda-recipe/build.sh
 
 # ignore jupyter checkpoints
 junbs/.ipynb_checkpoints/

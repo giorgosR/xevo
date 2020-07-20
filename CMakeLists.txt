@@ -49,7 +49,7 @@ message("xevo include dir: ${xevo_INCLUDE_DIRS}")
 
 #set(XKRIGE_SOURCES src/xtensor_example.cpp)
 
-set(xevo_SOURCES_TEST test/unittest_main.cpp
+set(XEVO_SOURCES_TEST test/unittest_main.cpp
 											test/test_functors.cpp
 											test/test_ga.cpp)
 
