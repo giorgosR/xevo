@@ -75,6 +75,21 @@ namespace xevo
       }
     }
   };
+  
+  /**
+   * @brief Functor for initialising velocity vector to 0
+   * 
+   */
+  struct Velocity_zero
+  {
+    template <class E, typename T = typename std::decay_t<E>::value_type>
+    void operator()(xt::xexpression<E>& V)
+    {
+      E& _V = V.derived_cast();
+      auto shape = _V.shape();
+      _V = xt::zeros<T>(shape);
+    }
+  };
 
   /**
    * @brief functor to calculate individual selection with Roulette method.

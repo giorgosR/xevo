@@ -51,9 +51,11 @@ message("xevo include dir: ${xevo_INCLUDE_DIRS}")
 
 set(XEVO_SOURCES_TEST test/unittest_main.cpp
 											test/test_functors.cpp
-											test/test_ga.cpp)
+											test/test_ga.cpp
+											test/test_pso.cpp)
 
 set(XEVO_HEADERS ${XEVO_INCLUDE}/xevo/ga.hpp
+                 ${XEVO_INCLUDE}/xevo/pso.hpp
 								 ${XEVO_INCLUDE}/xevo/functors.hpp
 								 ${XEVO_INCLUDE}/xevo/analytical_functions.hpp)
 
