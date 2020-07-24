@@ -54,6 +54,7 @@ template<class E, class POS = Population, class VEL = Velocity_zero, typename...
   * @brief  method to evolve bird positions of the swarm
   * 
   * @tparam E xtensor type for input and output vectors
+  * @tparam F xtensor type for input and output vectors for evaluation best
   * @tparam OBJ Functor type for objective function evaluation
   * @tparam POS Functor type for position evaluation
   * @tparam VEL Functor type for velocity evaluation
@@ -64,19 +65,20 @@ template<class E, class POS = Population, class VEL = Velocity_zero, typename...
   * @param XB vector with best positions of the individuals comprising the swarm
   * @param YB vector with best evaluations of the individuals comprising the swarm
   * @param V vector with initial velocities of the swarm individuals
-  * @param VB vector with best velocities of the swarm individuals
   * @param objective_f functor for objective function evaluation
   * @param posargs tuple with arguments for position functor
   * @param velargs tuple with arguments for velocity functor
   */
- template<class E, class OBJ, class POS, class VEL, typename... PosArgs, typename... VelArgs,
-  typename T = typename std::decay_t<E>::value_type>
- void evolve(xt::xexpression<E>& X, xt::xexpression<E>& XB, xt::xexpression<E>& YB,
-  xt::xexpression<E>& V, xt::xexpression<E>& VB,
-  OBJ objective_f, std::tuple<PosArgs...> posargs, std::tuple<VelArgs...> velargs)
+ template<class E, class F, class OBJ, class POS = Position, class VEL=Velocity, class SEL=Selection_best_pso,
+  typename... PosArgs, typename... VelArgs, typename... SelArgs, typename T = typename std::decay_t<E>::value_type>
+ void evolve(xt::xexpression<E>& X, xt::xexpression<E>& XB, xt::xexpression<F>& YB,
+  xt::xexpression<E>& V,
+  OBJ objective_f, std::tuple<PosArgs...> posargs, std::tuple<VelArgs...> velargs,
+   std::tuple<SelArgs...> selargs)
  {
-   evolve<E, OBJ, POS, VEL>(X, XB, YB, V, VB, objective_f, std::move(posargs), std::move(velargs), 
-   std::index_sequence_for<PosArgs...>{}, std::index_sequence_for<VelArgs...>{});
+   evolve<E, F, OBJ, POS, VEL, SEL>(X, XB, YB, V, objective_f, std::move(posargs), std::move(velargs), 
+   std::move(selargs), std::index_sequence_for<PosArgs...>{}, std::index_sequence_for<VelArgs...>{},
+    std::index_sequence_for<SelArgs...>{});
  }
 
  private:
@@ -117,44 +119,56 @@ template<class E, class POS = Population, class VEL = Velocity_zero, typename...
   * @brief  method to evolve bird positions of the swarm
   * 
   * @tparam E xtensor type for input and output vectors
+  * @tparam F xtensor type for input and output of evaluation best
   * @tparam OBJ Functor type for objective function evaluation
   * @tparam POS Functor type for position evaluation
   * @tparam VEL Functor type for velocity evaluation
+  * @tparam SEL Functor type for selection evaluation (Y best and X best)
   * @tparam PosArgs type of arguments for position evaluation functor
   * @tparam VelArgs type of arguments for velocity evaluation functor
+  * @tparam SelArgs type of arguments for selection evaluation functor
   * @tparam PIs number of arguments for position evaluation functor
   * @tparam VIs number of arguments for velocity evaluation functor
+  * @tparam SIs number of arguments for selection evaluation functor
   * @tparam T value type of xtensor
   * @param X vector with initial positions of the swarm
   * @param XB vector with best positions of the individuals comprising the swarm
   * @param YB vector with best evaluations of the individuals comprising the swarm
   * @param V vector with initial velocities of the swarm individuals
-  * @param VB vector with best velocities of the swarm individuals
   * @param objective_f functor for objective function evaluation
   * @param posargs tuple with arguments for position functor
   * @param velargs tuple with arguments for velocity functor
+  * @param selargs tuple with arguments for selection functor
   */
- template<class E, class OBJ, class POS, class VEL, typename... PosArgs, typename... VelArgs,
-  std::size_t... PIs, std::size_t... VIs, typename T = typename std::decay_t<E>::value_type>
- void evolve(xt::xexpression<E>& X, xt::xexpression<E>& XB, xt::xexpression<E>& YB,
-  xt::xexpression<E>& V, xt::xexpression<E>& VB, OBJ objective_f, std::tuple<PosArgs...>&& posargs,
-  std::tuple<VelArgs...>&& velargs, std::index_sequence<PIs...>, std::index_sequence<VIs...>)
+ template<class E, class F, class OBJ, class POS = Position, class VEL = Velocity, class SEL = Selection_best_pso,
+  typename... PosArgs, typename... VelArgs, typename... SelArgs, std::size_t... PIs, std::size_t... VIs, std::size_t... SIs,
+   typename T = typename std::decay_t<E>::value_type>
+ void evolve(xt::xexpression<E>& X, xt::xexpression<E>& XB, xt::xexpression<F>& YB,
+  xt::xexpression<E>& V, OBJ objective_f, std::tuple<PosArgs...>&& posargs,
+  std::tuple<VelArgs...>&& velargs, std::tuple<SelArgs...>&& selargs, std::index_sequence<PIs...>,
+   std::index_sequence<VIs...>, std::index_sequence<SIs...>)
  {
 
    POS pos_f(std::get<PIs>(std::move(posargs))...);
    VEL vel_f(std::get<VIs>(std::move(velargs))...);
+   SEL sel_f(std::get<SIs>(std::move(selargs))...);
 
    E& position = X.derived_cast();
    E& position_best = XB.derived_cast();
-   E& evaluation_best = YB.derived_cast();
+   F& y_best = YB.derived_cast();
    E& velocity = V.derived_cast();
-   E& velocity_best = VB.derived_cast();
-
-   auto y = objective_f(position);
 
    auto shape_of_population = position.shape();
    std::size_t individual_size = shape_of_population[0];
    std::size_t variable_size = shape_of_population[1];
+
+   F y = objective_f(position);
+
+   sel_f(position, position_best, y, y_best);
+   
+   vel_f(position, position_best, velocity, y_best);
+
+   pos_f(position, velocity);
 
  }
 

@@ -24,6 +24,7 @@
 #include "xtensor/xview.hpp"
 #include "xtensor/xrandom.hpp"
 #include "xtensor/xsort.hpp"
+#include "xtensor/xio.hpp"
 
 
 namespace xevo
@@ -88,6 +89,91 @@ namespace xevo
       E& _V = V.derived_cast();
       auto shape = _V.shape();
       _V = xt::zeros<T>(shape);
+    }
+  };
+
+  /**
+   * @brief Functor to calculate the velocity at the next iteration
+   * 
+   */
+  struct Velocity
+  {
+    Velocity(double w, double c1, double c2) : _w{w},
+     _c1{c1}, _c2{c2}
+    {
+
+    }
+
+    template <class E, class F, typename T = typename std::decay_t<E>::value_type>
+    void operator()(xt::xexpression<E>& X, xt::xexpression<E>& XB,
+     xt::xexpression<E>& V, xt::xexpression<F>& YB)
+    {
+      E& _X = X.derived_cast();
+      E& _XB = XB.derived_cast();
+      F& _YB = YB.derived_cast();
+      E& _V = V.derived_cast();
+      auto shape = _X.shape();
+      std::array<std::size_t, 1> shape_rand = { shape[0] };
+      F r1 = xt::random::rand<double>(shape_rand, 0.0, 1.0);
+      F r2 = xt::random::rand<double>(shape_rand, 0.0, 1.0);
+
+      auto index_best = xt::argmin(_YB)();
+      auto gx_best = xt::view(_XB, index_best, xt::all());
+
+      for (std::size_t i{0}; i < shape[0]; ++i)
+      {
+        xt::view(_V, i, xt::all()) = _w*xt::view(_V, i, xt::all()) + _c1*r1(i)*
+        (xt::view(_XB - _X, i, xt::all())) + _c2*r2(i)*(gx_best - xt::view(_X, i, xt::all()));
+      }
+
+    }
+
+    private:
+    double _w;
+    double _c1;
+    double _c2;
+  };
+
+  /**
+   * @brief Functor for calculating position at t + 1.
+   * 
+   * \f[ X_{i,j}^(t+1) = X_{i,j}^(t) + V_{i,j}^(t+1) \f]
+   * 
+   */
+  struct Position
+  {
+    template <class E, typename T = typename std::decay_t<E>::value_type>
+    void operator()(xt::xexpression<E>& X, xt::xexpression<E>& V)
+    {
+      E& _X = X.derived_cast();
+      E& _V = V.derived_cast();
+
+      _X = _X + _V;
+    }
+  };
+
+  struct Selection_best_pso
+  {
+    template <class E, class F, typename T = typename std::decay_t<E>::value_type>
+    void operator()(xt::xexpression<E>& X, xt::xexpression<E>& XB, xt::xexpression<F>& Y,
+     xt::xexpression<F>& YB)
+    {
+      E& _X = X.derived_cast();
+      F& _Y = Y.derived_cast();
+      E& _XB = XB.derived_cast();
+      F& _YB = YB.derived_cast();
+      
+      auto shape = _X.shape();
+      std::size_t no_individuals = shape[0];
+
+      for (std::size_t i{0}; i < no_individuals; ++i)
+      {
+        if (_Y(i) < _YB(i))
+        {
+          _YB(i) = _Y(i);
+          xt::view(_XB, i, xt::all()) = xt::view(_X, i, xt::all());
+        }
+      }
     }
   };
 
