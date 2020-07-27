@@ -115,7 +115,7 @@ namespace xevo
    * \f]
    * 
    */
-  struct Rosenbrock
+  struct Rosenbrock_scaled
   {
 
     /**
@@ -179,6 +179,118 @@ namespace xevo
         xt::eval(100.0*xt::pow(xt::pow(X1, 2) - X2, 2) + xt::pow(1 - X1, 2));
 
       return y;
+    }
+
+  };
+
+
+  /**
+   * @brief Rosenbrock's function.
+   *
+   * \f[
+   *   f(x_1, x_2) = 100*(x_1^2 - x_2)^2 + (1 - x_1)^2 \quad with \quad \mathbf{X} \in \[-3, 3 \]
+   * \f]
+   * 
+   */
+  struct Rosenbrock
+  {
+
+    /**
+     * @brief operator to evaluate the objective function.
+     * 
+     * @tparam E xtensor type
+     * @tparam value_type xtensor value type 
+     * @param X array to be evaluated
+     * @return auto evaluated array
+     */
+    template <class E, typename T = typename std::decay_t<E>::value_type>
+    auto operator()(const xt::xexpression<E>& X)
+    {
+     const E& _X = X.derived_cast();
+
+      auto shape = _X.shape();
+      std::size_t dim = _X.dimension();
+      if (dim != 2)
+      {
+        throw std::runtime_error("The input array should be of dim 2");
+      }
+      xt::xtensor<T, 1, xt::layout_type::row_major> _x1(xt::view(_X, xt::all(), 0));
+      xt::xtensor<T, 1, xt::layout_type::row_major> _x2(xt::view(_X, xt::all(), 1));
+
+      // scale in [-3, 3]
+      auto X1 = 6.0*_x1 - 3;
+      auto X2 = 6.0*_x2 - 3;
+      
+      xt::xtensor<T, 1, xt::layout_type::row_major> y =
+        xt::eval(100.0*xt::pow(xt::pow(X1, 2) - X2, 2) + xt::pow(1 - X1, 2));
+
+      return y;
+    }
+
+    /**
+     * @brief get the bounder of Rosenbrock function
+     * 
+     * @return std::pair<std::vector<double>, std::vector<double>> 
+     */
+    std::pair<std::vector<double>, std::vector<double>> bounder() const
+    {
+       return {{-3, -3}, {3, 3}};
+    }
+
+  };
+
+
+
+  /**
+   * @brief Sphere function.
+   *
+   * \f[
+   *   f(x_1, x_2) = x_1^2 + x_2^2 + 1 \quad with \quad \mathbf{X} \in \[-1, 1 \]
+   * \f]
+   * 
+   */
+  struct Sphere
+  {
+    /**
+     * @brief operator to evaluate the objective function.
+     * 
+     * @tparam E xtensor type
+     * @tparam value_type xtensor value type 
+     * @param X array to be evaluated
+     * @return auto evaluated array
+     */
+    template <class E, typename T = typename std::decay_t<E>::value_type>
+    auto operator()(const xt::xexpression<E>& X)
+    {
+      const E& _X = X.derived_cast();
+
+      auto shape = _X.shape();
+      std::size_t dim = _X.dimension();
+      if (dim != 2)
+      {
+        throw std::runtime_error("The input array should be of dim 2");
+      }
+      xt::xtensor<T, 1, xt::layout_type::row_major> _x1(xt::view(_X, xt::all(), 0));
+      xt::xtensor<T, 1, xt::layout_type::row_major> _x2(xt::view(_X, xt::all(), 1));
+
+      // scale in [-3, 3]
+      auto X1 = 2.0*_x1 - 1;
+      auto X2 = 2.0*_x2 - 1;
+      
+      xt::xtensor<T, 1, xt::layout_type::row_major> y =
+        xt::eval(xt::pow(X1, 2) + xt::pow(X2, 2) + 1);
+
+      return y;
+    }
+
+    /**
+     * @brief get the bounder of Rosenbrock function
+     * 
+     * @return std::pair<std::vector<double>, std::vector<double>> 
+     */
+    std::pair<std::vector<double>, std::vector<double>> bounder() const
+    {
+       return {{-1, -1}, {1, 1}};
     }
 
   };
