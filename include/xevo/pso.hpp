@@ -81,6 +81,46 @@ template<class E, class POS = Population, class VEL = Velocity_zero, typename...
     std::index_sequence_for<SelArgs...>{});
  }
 
+
+ /**
+  * @brief  method to evolve bird positions of the swarm
+  * 
+  * @tparam E xtensor type for input and output vectors
+  * @tparam F xtensor type for input and output vectors for evaluation best
+  * @tparam OBJ Functor type for objective function evaluation
+  * @tparam POS Functor type for position evaluation
+  * @tparam VEL Functor type for velocity evaluation
+  * @tparam SEL Functor type for selection best evaluation
+  * @tparam TERM Functor type for termination of pso
+  * @tparam PosArgs type of arguments for position evaluation functor
+  * @tparam VelArgs type of arguments for velocity evaluation functor
+  * @tparam SelArgs type of arguments for best selection evaluation functor
+  * @tparam T value type of xtensor
+  * @param X vector with initial positions of the swarm
+  * @param XB vector with best positions of the individuals comprising the swarm
+  * @param YB vector with best evaluations of the individuals comprising the swarm
+  * @param V vector with initial velocities of the swarm individuals
+  * @param objective_f functor for objective function evaluation
+  * @param posargs tuple with arguments for position functor
+  * @param velargs tuple with arguments for velocity functor
+  * @param selargs tuple with arguments for selection functor
+  * @param termargs tuple with arguments for termination functor
+  * 
+  */
+ template<class E, class F, class OBJ, class POS = Position, class VEL=Velocity, class SEL=Selection_best_pso,
+  class TERM=Terminate_gen_max,
+  typename... PosArgs, typename... VelArgs, typename... SelArgs, typename... TermArgs,
+   typename T = typename std::decay_t<E>::value_type>
+ auto evolve(xt::xexpression<E>& X, xt::xexpression<E>& XB, xt::xexpression<F>& YB,
+  xt::xexpression<E>& V,
+  OBJ objective_f, std::tuple<PosArgs...> posargs, std::tuple<VelArgs...> velargs,
+   std::tuple<SelArgs...> selargs, std::tuple<TermArgs...> termargs)
+ {
+   return evolve<E, F, OBJ, POS, VEL, SEL, TERM>(X, XB, YB, V, objective_f, std::move(posargs), std::move(velargs), 
+   std::move(selargs), std::move(termargs), std::index_sequence_for<PosArgs...>{}, std::index_sequence_for<VelArgs...>{},
+    std::index_sequence_for<SelArgs...>{}, std::index_sequence_for<TermArgs...>{});
+ }
+
  private:
 
 /**
@@ -172,8 +212,73 @@ template<class E, class POS = Population, class VEL = Velocity_zero, typename...
 
  }
 
-};
 
+ /**
+  * @brief  method to evolve bird positions of the swarm
+  * 
+  * @tparam E xtensor type for input and output vectors
+  * @tparam F xtensor type for input and output of evaluation best
+  * @tparam OBJ Functor type for objective function evaluation
+  * @tparam POS Functor type for position evaluation
+  * @tparam VEL Functor type for velocity evaluation
+  * @tparam SEL Functor type for selection evaluation (Y best and X best)
+  * @tparam TERM Functor type for termination
+  * @tparam PosArgs type of arguments for position evaluation functor
+  * @tparam VelArgs type of arguments for velocity evaluation functor
+  * @tparam SelArgs type of arguments for selection evaluation functor
+  * @tparam TermArgs type of arguments for termination functor
+  * @tparam PIs number of arguments for position evaluation functor
+  * @tparam VIs number of arguments for velocity evaluation functor
+  * @tparam SIs number of arguments for selection evaluation functor
+  * @tparam TIs number of arguments for termination functor
+  * @tparam T value type of xtensor
+  * @param X vector with initial positions of the swarm
+  * @param XB vector with best positions of the individuals comprising the swarm
+  * @param YB vector with best evaluations of the individuals comprising the swarm
+  * @param V vector with initial velocities of the swarm individuals
+  * @param objective_f functor for objective function evaluation
+  * @param posargs tuple with arguments for position functor
+  * @param velargs tuple with arguments for velocity functor
+  * @param selargs tuple with arguments for selection functor
+  * @param termargs tuple with arguments for termination functor
+  */
+ template<class E, class F, class OBJ, class POS = Position, class VEL = Velocity, class SEL = Selection_best_pso,
+  class TERM = Terminate_gen_max,
+  typename... PosArgs, typename... VelArgs, typename... SelArgs, typename... TermArgs,
+   std::size_t... PIs, std::size_t... VIs, std::size_t... SIs, std::size_t... TIs,
+   typename T = typename std::decay_t<E>::value_type>
+ auto evolve(xt::xexpression<E>& X, xt::xexpression<E>& XB, xt::xexpression<F>& YB,
+  xt::xexpression<E>& V, OBJ objective_f, std::tuple<PosArgs...>&& posargs,
+  std::tuple<VelArgs...>&& velargs, std::tuple<SelArgs...>&& selargs, std::tuple<TermArgs...>&& termargs,
+   std::index_sequence<PIs...>, std::index_sequence<VIs...>, std::index_sequence<SIs...>, std::index_sequence<TIs...>)
+ {
+
+   POS pos_f(std::get<PIs>(std::move(posargs))...);
+   VEL vel_f(std::get<VIs>(std::move(velargs))...);
+   SEL sel_f(std::get<SIs>(std::move(selargs))...);
+   TERM terminate_f(std::get<TIs>(std::move(termargs))...);
+
+   E& position = X.derived_cast();
+   E& position_best = XB.derived_cast();
+   F& y_best = YB.derived_cast();
+   E& velocity = V.derived_cast();
+
+   auto shape_of_population = position.shape();
+   std::size_t individual_size = shape_of_population[0];
+   std::size_t variable_size = shape_of_population[1];
+
+   F y = objective_f(position);
+
+   sel_f(position, position_best, y, y_best);
+   
+   vel_f(position, position_best, velocity, y_best);
+
+   pos_f(position, velocity);
+   
+   return terminate_f(position, objective_f(position));
+ }
+
+};
 }
 
 #endif
