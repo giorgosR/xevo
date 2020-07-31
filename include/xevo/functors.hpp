@@ -114,7 +114,7 @@ namespace xevo
      xt::xexpression<E>& V, xt::xexpression<F>& YB)
     {
       E& _X = X.derived_cast();
-      E& _XB = XB.derived_cast();
+      E& _XBest = XB.derived_cast();
       F& _YB = YB.derived_cast();
       E& _V = V.derived_cast();
       auto shape = _X.shape();
@@ -123,12 +123,12 @@ namespace xevo
       F r2 = xt::random::rand<double>(shape_rand, 0.0, 1.0);
 
       auto index_best = xt::argmin(_YB)();
-      auto gx_best = xt::view(_XB, index_best, xt::all());
+      auto gx_best = xt::view(_XBest, index_best, xt::all());
 
       for (std::size_t i{0}; i < shape[0]; ++i)
       {
         xt::view(_V, i, xt::all()) = _w*xt::view(_V, i, xt::all()) + _c1*r1(i)*
-        (xt::view(_XB - _X, i, xt::all())) + _c2*r2(i)*(gx_best - xt::view(_X, i, xt::all()));
+        (xt::view(_XBest - _X, i, xt::all())) + _c2*r2(i)*(gx_best - xt::view(_X, i, xt::all()));
       }
 
     }
@@ -161,7 +161,7 @@ namespace xevo
      xt::xexpression<E>& V, xt::xexpression<F>& YB)
     {
       E& _X = X.derived_cast();
-      E& _XB = XB.derived_cast();
+      E& _XBest = XB.derived_cast();
       F& _YB = YB.derived_cast();
       E& _V = V.derived_cast();
       auto shape = _X.shape();
@@ -169,7 +169,7 @@ namespace xevo
       F r1 = xt::random::rand<double>(shape_rand, 0.0, 1.0);
       F r2 = xt::random::rand<double>(shape_rand, 0.0, 1.0);
 
-      E gX_best(_XB);
+      E gX_best(_XBest);
 
       for (std::size_t i{0}; i < shape[0]; ++i)
       {
@@ -189,12 +189,12 @@ namespace xevo
           if (_value < value_min)
           {
             value_min = _value;
-            xt::view(gX_best, i, xt::all()) = xt::view(_XB, index, xt::all());
+            xt::view(gX_best, i, xt::all()) = xt::view(_XBest, index, xt::all());
           }
 
         }
         xt::view(_V, i, xt::all()) = _w*xt::view(_V, i, xt::all()) + _c1*r1(i)*
-        (xt::view(_XB - _X, i, xt::all())) + _c2*r2(i)*(xt::view(gX_best, i, xt::all()) - xt::view(_X, i, xt::all()));
+        (xt::view(_XBest - _X, i, xt::all())) + _c2*r2(i)*(xt::view(gX_best, i, xt::all()) - xt::view(_X, i, xt::all()));
       }
 
     }
@@ -231,7 +231,7 @@ namespace xevo
     {
       E& _X = X.derived_cast();
       F& _Y = Y.derived_cast();
-      E& _XB = XB.derived_cast();
+      E& _XBest = XB.derived_cast();
       F& _YB = YB.derived_cast();
       
       auto shape = _X.shape();
@@ -242,7 +242,7 @@ namespace xevo
         if (_Y(i) < _YB(i))
         {
           _YB(i) = _Y(i);
-          xt::view(_XB, i, xt::all()) = xt::view(_X, i, xt::all());
+          xt::view(_XBest, i, xt::all()) = xt::view(_X, i, xt::all());
         }
       }
     }
@@ -380,21 +380,21 @@ namespace xevo
    * @brief Functor for polynomial mutation 
    *
    * for a given parent solution \f$ p \in \left[ a, b \right] \f$,
-   * the mutated solution \f$ p^' \f$ for a particular variable is created
+   * the mutated solution \f$ p^{'} \f$ for a particular variable is created
    * for a random number \f$ u \in \left[ 0, 1 \right]\f$
    * 
    * \f[
-   *    p^' = 
-   *    \begin{cases*}
-   *      p + \bar{\delta_L}\left( p - x_i^{(L)} \right), for \quad u \se 0.5, \\
+   *    p^{'} = 
+   *    \begin{cases}
+   *      p + \bar{\delta_L}\left( p - x_i^{(L)} \right), for \quad u \leq 0.5, \\
    *      p + \bar{\delta_R}\left( x_i^{(U)} - p \right), for \quad u > 0.5,
-   *    \end{cases*}
+   *    \end{cases}
    * \f]
    * 
    * Then \f$\bar{\delta_L}\f$ and \f$\bar{\delta_R}\f$ are calculated as
    * 
    * \f[
-   *   \bar{\delta_L} = (2u)^{1/(1+ \eta_m)} - 1, for \quad u \se 0.5, \\
+   *   \bar{\delta_L} = (2u)^{1/(1+ \eta_m)} - 1, for \quad u \leq 0.5, \\
    *   \bar{\delta_R} = 1 - (2(1-u))^{1/(1+\eta_m)}, for \quad u > 0.5
    * \f]
    * 

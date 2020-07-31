@@ -111,7 +111,7 @@ namespace xevo
    * @brief Rosenbrock's function.
    *
    * \f[
-   *   f(x_1, x_2) = 100*(x_1^2 - x_2)^2 + (1 - x_1)^2 \quad with \quad \mathbf{X} \in \[-3, 3 \]
+   *   f(x_1, x_2) = 100*(x_1^2 - x_2)^2 + (1 - x_1)^2 \quad with \quad \mathbf{X} \in \left[-3, 3 \right]
    * \f]
    * 
    */
@@ -188,7 +188,7 @@ namespace xevo
    * @brief Rosenbrock's function.
    *
    * \f[
-   *   f(x_1, x_2) = 100*(x_1^2 - x_2)^2 + (1 - x_1)^2 \quad with \quad \mathbf{X} \in \[-3, 3 \]
+   *   f(x_1, x_2) = 100*(x_1^2 - x_2)^2 + (1 - x_1)^2 \quad with \quad \mathbf{X} \in \left[-3, 3 \right]
    * \f]
    * 
    */
@@ -245,7 +245,7 @@ namespace xevo
    * @brief Sphere function.
    *
    * \f[
-   *   f(x_1, x_2) = x_1^2 + x_2^2 + 1 \quad with \quad \mathbf{X} \in \[-1, 1 \]
+   *   f(x_1, x_2) = x_1^2 + x_2^2 + 1 \quad with \quad \mathbf{X} \in \left[-1, 1 \right]
    * \f]
    * 
    */
