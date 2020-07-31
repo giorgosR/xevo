@@ -95,16 +95,16 @@ namespace xevo
   /**
    * @brief Functor to calculate the velocity at the next iteration
    * 
-   * /f[
+   * \f[
    *    V_{ij}^{t+1} = \omega V_{ij}^t + c_1 r_1^t \left( pbestX_{ij} - X_{ij}^t \right) + 
    *                    c_2 r_2^t \left( gbestx_j - X_{ij}^t \right)
-   * /f]
+   * \f]
    * 
    */
   struct Velocity
   {
-    Velocity(double w, double c1, double c2) : _w{w},
-     _c1{c1}, _c2{c2}
+    Velocity(double w, double c1, double c2, bool minimise=true) : _w{w},
+      _c1{ c1 }, _c2{ c2 }, _minimise{minimise}
     {
 
     }
@@ -122,13 +122,27 @@ namespace xevo
       F r1 = xt::random::rand<double>(shape_rand, 0.0, 1.0);
       F r2 = xt::random::rand<double>(shape_rand, 0.0, 1.0);
 
-      auto index_best = xt::argmin(_YB)();
-      auto gx_best = xt::view(_XBest, index_best, xt::all());
-
-      for (std::size_t i{0}; i < shape[0]; ++i)
+      if (_minimise)
       {
-        xt::view(_V, i, xt::all()) = _w*xt::view(_V, i, xt::all()) + _c1*r1(i)*
-        (xt::view(_XBest - _X, i, xt::all())) + _c2*r2(i)*(gx_best - xt::view(_X, i, xt::all()));
+        auto index_best = xt::argmin(_YB)();
+        auto gx_best = xt::view(_XBest, index_best, xt::all());
+
+        for (std::size_t i{ 0 }; i < shape[0]; ++i)
+        {
+          xt::view(_V, i, xt::all()) = _w * xt::view(_V, i, xt::all()) + _c1 * r1(i) *
+            (xt::view(_XBest - _X, i, xt::all())) + _c2 * r2(i) * (gx_best - xt::view(_X, i, xt::all()));
+        }
+      }
+      else
+      {
+        auto index_best = xt::argmax(_YB)();
+        auto gx_best = xt::view(_XBest, index_best, xt::all());
+
+        for (std::size_t i{ 0 }; i < shape[0]; ++i)
+        {
+          xt::view(_V, i, xt::all()) = _w * xt::view(_V, i, xt::all()) + _c1 * r1(i) *
+            (xt::view(_XBest - _X, i, xt::all())) + _c2 * r2(i) * (gx_best - xt::view(_X, i, xt::all()));
+        }
       }
 
     }
@@ -137,21 +151,22 @@ namespace xevo
     double _w;
     double _c1;
     double _c2;
+    bool _minimise;
   };
 
   /**
    * @brief Functor to calculate the velocity with ring topology at the next iteration
    *
-   *  /f[
+   *  \f[
    *    V_{ij}^{t+1} = \omega V_{ij}^t + c_1 r_1^t \left( pbestX_{ij} - X_{ij}^t \right) + 
    *                    c_2 r_2^t \left( ringbestX_{ij} - X_{ij}^t \right)
-   *  /f]
+   *  \f]
    * 
    */
   struct Velocity_ring_topology
   {
-    Velocity_ring_topology(double w, double c1, double c2) : _w{w},
-     _c1{c1}, _c2{c2}
+    Velocity_ring_topology(double w, double c1, double c2, bool minimise=true) : _w{w},
+      _c1{ c1 }, _c2{ c2 }, _minimise{minimise}
     {
 
     }
@@ -171,31 +186,64 @@ namespace xevo
 
       E gX_best(_XBest);
 
-      for (std::size_t i{0}; i < shape[0]; ++i)
+      if (_minimise)
       {
-        T value_min = std::numeric_limits<T>::max();
-        for (std::size_t j{0}; j < 2; ++j)
+        for (std::size_t i{ 0 }; i < shape[0]; ++i)
         {
-          int index = i - 1 + j;
-          if (index == -1)
+          T value_min = std::numeric_limits<T>::max();
+          for (std::size_t j{ 0 }; j < 2; ++j)
           {
-            index = shape[0] - 1;
-          }
-          if (index == shape[0])
-          {
-            index = 0;
-          }
-          T _value = _YB(index);
-          if (_value < value_min)
-          {
-            value_min = _value;
-            xt::view(gX_best, i, xt::all()) = xt::view(_XBest, index, xt::all());
-          }
+            int index = i - 1 + j;
+            if (index == -1)
+            {
+              index = shape[0] - 1;
+            }
+            if (index == shape[0])
+            {
+              index = 0;
+            }
+            T _value = _YB(index);
+            if (_value < value_min)
+            {
+              value_min = _value;
+              xt::view(gX_best, i, xt::all()) = xt::view(_XBest, index, xt::all());
+            }
 
+          }
+          xt::view(_V, i, xt::all()) = _w * xt::view(_V, i, xt::all()) + _c1 * r1(i) *
+            (xt::view(_XBest - _X, i, xt::all())) + _c2 * r2(i) * (xt::view(gX_best, i, xt::all()) - xt::view(_X, i, xt::all()));
         }
-        xt::view(_V, i, xt::all()) = _w*xt::view(_V, i, xt::all()) + _c1*r1(i)*
-        (xt::view(_XBest - _X, i, xt::all())) + _c2*r2(i)*(xt::view(gX_best, i, xt::all()) - xt::view(_X, i, xt::all()));
       }
+      else
+      {
+        for (std::size_t i{ 0 }; i < shape[0]; ++i)
+        {
+          T value_max = std::numeric_limits<T>::min();
+          for (std::size_t j{ 0 }; j < 2; ++j)
+          {
+            int index = i - 1 + j;
+            if (index == -1)
+            {
+              index = shape[0] - 1;
+            }
+            if (index == shape[0])
+            {
+              index = 0;
+            }
+            T _value = _YB(index);
+            if (_value > value_max)
+            {
+              value_max = _value;
+              xt::view(gX_best, i, xt::all()) = xt::view(_XBest, index, xt::all());
+            }
+
+          }
+          xt::view(_V, i, xt::all()) = _w * xt::view(_V, i, xt::all()) + _c1 * r1(i) *
+            (xt::view(_XBest - _X, i, xt::all())) + _c2 * r2(i) * (xt::view(gX_best, i, xt::all()) - xt::view(_X, i, xt::all()));
+        }
+
+      }
+
 
     }
 
@@ -203,6 +251,7 @@ namespace xevo
     double _w;
     double _c1;
     double _c2;
+    bool _minimise;
   };
 
   /**
@@ -223,8 +272,14 @@ namespace xevo
     }
   };
 
+
   struct Selection_best_pso
   {
+    Selection_best_pso(bool minimise = true) : _minimise{minimise}
+    {
+
+    }
+
     template <class E, class F, typename T = typename std::decay_t<E>::value_type>
     void operator()(xt::xexpression<E>& X, xt::xexpression<E>& XB, xt::xexpression<F>& Y,
      xt::xexpression<F>& YB)
@@ -246,6 +301,8 @@ namespace xevo
         }
       }
     }
+  private:
+    bool _minimise;
   };
 
   /**
