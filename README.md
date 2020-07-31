@@ -2,13 +2,13 @@
 
 ![xevo](doc/images/xevo_logo.png)
 
-# xevo (Nature inspired evolutionary algorithms)
+# Evolutionary and Swarm Intelligence algorithms
 
-This is the `git` repository for nature inspyred optimisation algorithms.
+This is the `git` repository for the c++ package xevo.
 
 ## Dependencies
 
-`xevo` is based on `xtensor` developed by `QuantStack`.
+`xevo` depends on [`xtensor`](https://github.com/xtensor-stack/xtensor) developed by [`QuantStack`](https://quantstack.net/).
 
 ## Clone
 
@@ -25,7 +25,7 @@ You can install `xevo` from `conda` or build the source with `cmake`.
 * Anaconda
 
 ```shell
-conda install xevo -c conda-forge 
+conda install xevo -c giorgosR
 ```
 
 * CMAKE
@@ -34,7 +34,7 @@ Just go to the git repository and type the following:
 
 ```shell
 mkdir build && cd build
-cmake -DCMAKE_INSTALL=<your directory> ../
+cmake -DCMAKE_INSTALL_PREFIX=<install_dir> -DCMAKE_INSTALL_LIBDIR=<lib_dir> ../
 cmake --build ./ INSTALL
 ```
 
@@ -59,3 +59,31 @@ http://localhost:8080
 ```
 
 Then paste the token which can be found on the docker running image.
+
+## Documentation
+
+To build the documentation, the following packages are needed:
+
+* doxygen
+* sphinx
+* sphinx_rtd_theme
+* breathe
+
+Create a conda environment from [conda yml file](conda/docs.yml) as:
+
+```bash
+conda env create -n docs -f docs.yml
+conda activate docs
+```
+
+Once the environment is created, inside build folder reconfigure as:
+
+```bash
+mkdir build && cd build
+
+cmake -G Ninja -DBUILD_DOCUMENTATION=ON
+ -DDOXYGEN_EXECUTABLE=${CONDA_PREFIX}\Scripts\doxygen.exe"
+ -DSPHINX_EXECUTABLE=${CONDA_PREFIX}\Scripts\sphinx-build.exe" ../
+
+ninja doc && ninja Sphinx
+```

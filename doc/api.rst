@@ -12,6 +12,13 @@ Analytical functions
    :project: xevo
    :members:
 
+.. doxygenstruct:: xevo::Rosenbrock_scaled 
+   :project: xevo
+   :members:
+
+.. doxygenstruct:: xevo::Sphere 
+   :project: xevo
+   :members:
 
 Functors
 --------
@@ -41,5 +48,13 @@ Evolutionary algorithms
 -----------------------
 
 .. doxygenclass:: xevo::ga 
+   :project: xevo
+   :members:
+
+
+Swarm Intelligence algorithms
+-----------------------
+
+.. doxygenclass:: xevo::pso 
    :project: xevo
    :members:

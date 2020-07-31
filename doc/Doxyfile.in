@@ -4,7 +4,7 @@ PROJECT_BRIEF          = "XEVO Documentation"
 # PROJECT_LOGO           = "@CMAKE_CURRENT_SOURCE_DIR@/images/.svg"
 STRIP_FROM_PATH        = @PROJECT_SOURCE_DIR@ \
                          @PROJECT_BINARY_DIR@
-FILE_PATTERNS          = @PROJECT_SOURCE_DIR@/include/xevo/*.h
+FILE_PATTERNS          = @PROJECT_SOURCE_DIR@/include/xevo/*.hpp
 FULL_PATH_NAMES        = NO
 RECURSIVE              = YES
 SOURCE_BROWSER         = NO

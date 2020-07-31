@@ -1,0 +1,15 @@
+# env file for  building docs
+name: docs
+channels:
+  - defaults
+  - conda-forge
+  - anaconda
+dependencies:
+  - python=3.5
+  - conda-forge::cmake
+  - conda-forge::ninja
+  - conda-forge::xtensor
+  - conda-forge::doxygen
+  - anaconda::sphinx
+  - anaconda::sphinx_rtd_theme
+  - conda-forge::breathe
