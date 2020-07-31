@@ -291,13 +291,26 @@ namespace xevo
       
       auto shape = _X.shape();
       std::size_t no_individuals = shape[0];
-
-      for (std::size_t i{0}; i < no_individuals; ++i)
+      if (_minimise)
       {
-        if (_Y(i) < _YB(i))
+        for (std::size_t i{ 0 }; i < no_individuals; ++i)
         {
-          _YB(i) = _Y(i);
-          xt::view(_XBest, i, xt::all()) = xt::view(_X, i, xt::all());
+          if (_Y(i) < _YB(i))
+          {
+            _YB(i) = _Y(i);
+            xt::view(_XBest, i, xt::all()) = xt::view(_X, i, xt::all());
+          }
+        }
+      }
+      else
+      {
+        for (std::size_t i{ 0 }; i < no_individuals; ++i)
+        {
+          if (_Y(i) > _YB(i))
+          {
+            _YB(i) = _Y(i);
+            xt::view(_XBest, i, xt::all()) = xt::view(_X, i, xt::all());
+          }
         }
       }
     }
