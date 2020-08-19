@@ -51,12 +51,13 @@ message("xevo include dir: ${xevo_INCLUDE_DIRS}")
 
 set(XEVO_SOURCES_TEST test/unittest_main.cpp
 											test/test_functors.cpp
-											test/test_ga.cpp)
+											test/test_ga.cpp
+											test/test_pso.cpp)
 
 set(XEVO_HEADERS ${XEVO_INCLUDE}/xevo/ga.hpp
+                 ${XEVO_INCLUDE}/xevo/pso.hpp
 								 ${XEVO_INCLUDE}/xevo/functors.hpp
 								 ${XEVO_INCLUDE}/xevo/analytical_functions.hpp)
-
 
 add_library(xevo INTERFACE)
 
@@ -108,14 +109,14 @@ endif(INSTALL_LIB)
 if(BUILD_TESTS)
   include(ExternalProject)
   include(External_googletest)
-  ADD_DEFINITIONS(-DTEST)
+  ADD_DEFINITIONS(-DTEST_XEVO)
   if(UNIX)
     set(GTEST_LIBRARIES ${CMAKE_BINARY_DIR}/lib/installed/lib/libgtestd.a
                         ${CMAKE_BINARY_DIR}/lib/installed/lib/libgtest_maind.a)
     message("GTEST_LIBS: ${GTEST_LIBRARIES}")
   else()
-   set(GTEST_LIBRARIES ${CMAKE_BINARY_DIR}/lib/installed/lib/gtestd.lib
-                       ${CMAKE_BINARY_DIR}/lib/installed/lib/libgtest_maind.lib)
+   set(GTEST_LIBRARIES ${CMAKE_CURRENT_BINARY_DIR}/lib/installed/lib/gtestd.lib
+                       ${CMAKE_CURRENT_BINARY_DIR}/lib/installed/lib/gtest_maind.lib)
    message("GTEST_LIBS: ${GTEST_LIBRARIES}")
   endif(UNIX)
 endif(BUILD_TESTS)
@@ -130,40 +131,7 @@ if(BUILD_TESTS)
  add_dependencies(xevo_tests googletest)
 endif(BUILD_TESTS)
 
-# if(MSVC)
-#  target_compile_options(run PRIVATE /EHsc /MP /bigobj)
-#  set(CMAKE_EXE_LINKER_FLAGS /MANIFEST:NO)
-# endif(MSVC)
-
-# if(BUILD_TESTS)
-#   if(UNIX)
-#     target_include_directories(xevo_tests PUBLIC ${xevo_INCLUDE_DIRS} 
-#                                                  ${xtensor_INCLUDE_DIRS}
-#                                                  ${CMAKE_BINARY_DIR}/lib/installed/include)
-    
-#     target_link_libraries(xevo_tests ${GTEST_LIBRARIES}
-#                                      ${CMAKE_THREAD_LIBS_INIT})
-#     add_dependencies(xevo_tests googletest)
-#     set_target_properties(xevo_tests PROPERTIES EXCLUDE_FROM_ALL TRUE)
-#   else(WIN32)
-#     target_include_directories(xevo_tests PUBLIC ${xevo_INCLUDE_DIRS} 
-#                                                  ${xtensor_INCLUDE_DIRS} 
-#                                                  ${CMAKE_BINARY_DIR}/lib/installed/include)
-                                                       
-#     target_link_libraries(xevo_tests ${GTEST_LIBRARIES}
-#                                      Threads::Threads)
-# 	  add_dependencies(xevo_tests googletest)
-#   endif(UNIX)
-# else()
-#   if(UNIX)
-#     # target_include_directories(run PUBLIC ${xkrige_INCLUDE_DIRS} 
-#     #                                       ${xtensor_INCLUDE_DIRS} 
-#     #                                       ${xtensor_blas_INCLUDE_DIRS})
-#     # target_link_libraries(run ${OpenBLAS_LIBRARIES} ${LAPACK_LIBRARIES})
-#   else(WIN32)
-#     # target_include_directories(run PUBLIC ${xkrige_INCLUDE_DIRS} 
-#     #                                       ${xtensor_INCLUDE_DIRS} 
-#     #                                       ${xtensor_blas_INCLUDE_DIRS})
-#     # target_link_libraries(run ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
-#   endif(UNIX)
-# endif(BUILD_TESTS)
+if(BUILD_TESTS AND MSVC)
+ target_compile_options(xevo_tests PRIVATE /EHsc /MP /bigobj)
+ set(CMAKE_EXE_LINKER_FLAGS /MANIFEST:NO)
+endif(BUILD_TESTS AND MSVC)

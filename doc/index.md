@@ -10,6 +10,7 @@ Welcome to xevo documentation
    :maxdepth: 2
    :caption: Contents:
 
+   main
    api
 
 Indices and tables

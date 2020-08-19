@@ -24,6 +24,7 @@
 #include "xtensor/xview.hpp"
 #include "xtensor/xrandom.hpp"
 #include "xtensor/xsort.hpp"
+#include "xtensor/xio.hpp"
 
 
 namespace xevo
@@ -74,6 +75,247 @@ namespace xevo
         _X(i) = std::roundf(unif_dist(rng) * 100) / 100.0;
       }
     }
+  };
+  
+  /**
+   * @brief Functor for initialising velocity vector to 0
+   * 
+   */
+  struct Velocity_zero
+  {
+    template <class E, typename T = typename std::decay_t<E>::value_type>
+    void operator()(xt::xexpression<E>& V)
+    {
+      E& _V = V.derived_cast();
+      auto shape = _V.shape();
+      _V = xt::zeros<T>(shape);
+    }
+  };
+
+  /**
+   * @brief Functor to calculate the velocity at the next iteration
+   * 
+   * \f[
+   *    V_{ij}^{t+1} = \omega V_{ij}^t + c_1 r_1^t \left( pbestX_{ij} - X_{ij}^t \right) + 
+   *                    c_2 r_2^t \left( gbestx_j - X_{ij}^t \right)
+   * \f]
+   * 
+   */
+  struct Velocity
+  {
+    Velocity(double w, double c1, double c2, bool minimise=true) : _w{w},
+      _c1{ c1 }, _c2{ c2 }, _minimise{minimise}
+    {
+
+    }
+
+    template <class E, class F, typename T = typename std::decay_t<E>::value_type>
+    void operator()(xt::xexpression<E>& X, xt::xexpression<E>& XB,
+     xt::xexpression<E>& V, xt::xexpression<F>& YB)
+    {
+      E& _X = X.derived_cast();
+      E& _XBest = XB.derived_cast();
+      F& _YB = YB.derived_cast();
+      E& _V = V.derived_cast();
+      auto shape = _X.shape();
+      std::array<std::size_t, 1> shape_rand = { shape[0] };
+      F r1 = xt::random::rand<double>(shape_rand, 0.0, 1.0);
+      F r2 = xt::random::rand<double>(shape_rand, 0.0, 1.0);
+
+      if (_minimise)
+      {
+        auto index_best = xt::argmin(_YB)();
+        auto gx_best = xt::view(_XBest, index_best, xt::all());
+
+        for (std::size_t i{ 0 }; i < shape[0]; ++i)
+        {
+          xt::view(_V, i, xt::all()) = _w * xt::view(_V, i, xt::all()) + _c1 * r1(i) *
+            (xt::view(_XBest - _X, i, xt::all())) + _c2 * r2(i) * (gx_best - xt::view(_X, i, xt::all()));
+        }
+      }
+      else
+      {
+        auto index_best = xt::argmax(_YB)();
+        auto gx_best = xt::view(_XBest, index_best, xt::all());
+
+        for (std::size_t i{ 0 }; i < shape[0]; ++i)
+        {
+          xt::view(_V, i, xt::all()) = _w * xt::view(_V, i, xt::all()) + _c1 * r1(i) *
+            (xt::view(_XBest - _X, i, xt::all())) + _c2 * r2(i) * (gx_best - xt::view(_X, i, xt::all()));
+        }
+      }
+
+    }
+
+    private:
+    double _w;
+    double _c1;
+    double _c2;
+    bool _minimise;
+  };
+
+  /**
+   * @brief Functor to calculate the velocity with ring topology at the next iteration
+   *
+   *  \f[
+   *    V_{ij}^{t+1} = \omega V_{ij}^t + c_1 r_1^t \left( pbestX_{ij} - X_{ij}^t \right) + 
+   *                    c_2 r_2^t \left( ringbestX_{ij} - X_{ij}^t \right)
+   *  \f]
+   * 
+   */
+  struct Velocity_ring_topology
+  {
+    Velocity_ring_topology(double w, double c1, double c2, bool minimise=true) : _w{w},
+      _c1{ c1 }, _c2{ c2 }, _minimise{minimise}
+    {
+
+    }
+
+    template <class E, class F, typename T = typename std::decay_t<E>::value_type>
+    void operator()(xt::xexpression<E>& X, xt::xexpression<E>& XB,
+     xt::xexpression<E>& V, xt::xexpression<F>& YB)
+    {
+      E& _X = X.derived_cast();
+      E& _XBest = XB.derived_cast();
+      F& _YB = YB.derived_cast();
+      E& _V = V.derived_cast();
+      auto shape = _X.shape();
+      std::array<std::size_t, 1> shape_rand = { shape[0] };
+      F r1 = xt::random::rand<double>(shape_rand, 0.0, 1.0);
+      F r2 = xt::random::rand<double>(shape_rand, 0.0, 1.0);
+
+      E gX_best(_XBest);
+
+      if (_minimise)
+      {
+        for (std::size_t i{ 0 }; i < shape[0]; ++i)
+        {
+          T value_min = std::numeric_limits<T>::max();
+          for (std::size_t j{ 0 }; j < 2; ++j)
+          {
+            int index = i - 1 + j;
+            if (index == -1)
+            {
+              index = shape[0] - 1;
+            }
+            if (index == shape[0])
+            {
+              index = 0;
+            }
+            T _value = _YB(index);
+            if (_value < value_min)
+            {
+              value_min = _value;
+              xt::view(gX_best, i, xt::all()) = xt::view(_XBest, index, xt::all());
+            }
+
+          }
+          xt::view(_V, i, xt::all()) = _w * xt::view(_V, i, xt::all()) + _c1 * r1(i) *
+            (xt::view(_XBest - _X, i, xt::all())) + _c2 * r2(i) * (xt::view(gX_best, i, xt::all()) - xt::view(_X, i, xt::all()));
+        }
+      }
+      else
+      {
+        for (std::size_t i{ 0 }; i < shape[0]; ++i)
+        {
+          T value_max = std::numeric_limits<T>::min();
+          for (std::size_t j{ 0 }; j < 2; ++j)
+          {
+            int index = i - 1 + j;
+            if (index == -1)
+            {
+              index = shape[0] - 1;
+            }
+            if (index == shape[0])
+            {
+              index = 0;
+            }
+            T _value = _YB(index);
+            if (_value > value_max)
+            {
+              value_max = _value;
+              xt::view(gX_best, i, xt::all()) = xt::view(_XBest, index, xt::all());
+            }
+
+          }
+          xt::view(_V, i, xt::all()) = _w * xt::view(_V, i, xt::all()) + _c1 * r1(i) *
+            (xt::view(_XBest - _X, i, xt::all())) + _c2 * r2(i) * (xt::view(gX_best, i, xt::all()) - xt::view(_X, i, xt::all()));
+        }
+
+      }
+
+
+    }
+
+    private:
+    double _w;
+    double _c1;
+    double _c2;
+    bool _minimise;
+  };
+
+  /**
+   * @brief Functor for calculating position at t + 1.
+   * 
+   * \f[ X_{i,j}^(t+1) = X_{i,j}^(t) + V_{i,j}^(t+1) \f]
+   * 
+   */
+  struct Position
+  {
+    template <class E, typename T = typename std::decay_t<E>::value_type>
+    void operator()(xt::xexpression<E>& X, xt::xexpression<E>& V)
+    {
+      E& _X = X.derived_cast();
+      E& _V = V.derived_cast();
+
+      _X = _X + _V;
+    }
+  };
+
+
+  struct Selection_best_pso
+  {
+    Selection_best_pso(bool minimise = true) : _minimise{minimise}
+    {
+
+    }
+
+    template <class E, class F, typename T = typename std::decay_t<E>::value_type>
+    void operator()(xt::xexpression<E>& X, xt::xexpression<E>& XB, xt::xexpression<F>& Y,
+     xt::xexpression<F>& YB)
+    {
+      E& _X = X.derived_cast();
+      F& _Y = Y.derived_cast();
+      E& _XBest = XB.derived_cast();
+      F& _YB = YB.derived_cast();
+      
+      auto shape = _X.shape();
+      std::size_t no_individuals = shape[0];
+      if (_minimise)
+      {
+        for (std::size_t i{ 0 }; i < no_individuals; ++i)
+        {
+          if (_Y(i) < _YB(i))
+          {
+            _YB(i) = _Y(i);
+            xt::view(_XBest, i, xt::all()) = xt::view(_X, i, xt::all());
+          }
+        }
+      }
+      else
+      {
+        for (std::size_t i{ 0 }; i < no_individuals; ++i)
+        {
+          if (_Y(i) > _YB(i))
+          {
+            _YB(i) = _Y(i);
+            xt::view(_XBest, i, xt::all()) = xt::view(_X, i, xt::all());
+          }
+        }
+      }
+    }
+  private:
+    bool _minimise;
   };
 
   /**
@@ -208,21 +450,21 @@ namespace xevo
    * @brief Functor for polynomial mutation 
    *
    * for a given parent solution \f$ p \in \left[ a, b \right] \f$,
-   * the mutated solution \f$ p^' \f$ for a particular variable is created
+   * the mutated solution \f$ p^{'} \f$ for a particular variable is created
    * for a random number \f$ u \in \left[ 0, 1 \right]\f$
    * 
    * \f[
-   *    p^' = 
-   *    \begin{cases*}
-   *      p + \bar{\delta_L}\left( p - x_i^{(L)} \right), for \quad u \se 0.5, \\
+   *    p^{'} = 
+   *    \begin{cases}
+   *      p + \bar{\delta_L}\left( p - x_i^{(L)} \right), for \quad u \leq 0.5, \\
    *      p + \bar{\delta_R}\left( x_i^{(U)} - p \right), for \quad u > 0.5,
-   *    \end{cases*}
+   *    \end{cases}
    * \f]
    * 
    * Then \f$\bar{\delta_L}\f$ and \f$\bar{\delta_R}\f$ are calculated as
    * 
    * \f[
-   *   \bar{\delta_L} = (2u)^{1/(1+ \eta_m)} - 1, for \quad u \se 0.5, \\
+   *   \bar{\delta_L} = (2u)^{1/(1+ \eta_m)} - 1, for \quad u \leq 0.5, \\
    *   \bar{\delta_R} = 1 - (2(1-u))^{1/(1+\eta_m)}, for \quad u > 0.5
    * \f]
    * 

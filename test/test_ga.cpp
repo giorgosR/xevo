@@ -36,7 +36,7 @@ TEST(ga, void_evolve)
   std::array<std::size_t, 2> shape = {40, 2};
   xt::xarray<double> X = xt::zeros<double>(shape);
   
-  xevo::Rosenbrock objective_f;
+  xevo::Rosenbrock_scaled objective_f;
 
   xevo::ga genetic_algorithm;
   genetic_algorithm.initialise(X);
@@ -62,7 +62,7 @@ TEST(ga, auto_evolve)
   std::array<std::size_t, 2> shape = {40, 2};
   xt::xarray<double> X = xt::zeros<double>(shape);
   
-  xevo::Rosenbrock objective_f;
+  xevo::Rosenbrock_scaled objective_f;
 
   xevo::ga genetic_algorithm;
   genetic_algorithm.initialise(X);
@@ -88,7 +88,7 @@ TEST(ga, auto_evolve)
 TEST(ga, auto_evolve_tol)
 {
   using xtensor_x_type = xt::xarray<double>;
-  using objective_type = xevo::Rosenbrock;
+  using objective_type = xevo::Rosenbrock_scaled;
   using elitism_type = xevo::Elitism;
   using selection_type = xevo::Roulette_selection;
   using crossover_type = xevo::Crossover;
@@ -98,7 +98,7 @@ TEST(ga, auto_evolve_tol)
   std::array<std::size_t, 2> shape = {40, 2};
   xtensor_x_type X = xt::zeros<double>(shape);
   
-  xevo::Rosenbrock objective_f;
+  xevo::Rosenbrock_scaled objective_f;
 
   xevo::ga genetic_algorithm;
   genetic_algorithm.initialise(X);
