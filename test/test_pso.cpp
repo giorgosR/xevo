@@ -118,8 +118,8 @@ TEST(pso, void_evolve_rosenbork_ring_topology)
   using velocity_type = xevo::Velocity_ring_topology;
   using position_type = xevo::Position;
 
-  std::array<std::size_t, 2> shape = {40, 2};
-  std::array<std::size_t, 1> shape_y = {40};
+  std::array<std::size_t, 2> shape = {50, 2};
+  std::array<std::size_t, 1> shape_y = {50};
 
   xt::xarray<double> X = xt::zeros<double>(shape);
   xt::xarray<double> V = xt::zeros<double>(shape);
@@ -134,7 +134,7 @@ TEST(pso, void_evolve_rosenbork_ring_topology)
   xt::xarray<double> XB(X);
   xt::xarray<double> YB = xt::ones<double>(shape_y)*max_double_value;
 
-  std::size_t num_generations = 200;
+  std::size_t num_generations = 300;
   for (auto i{0}; i<num_generations; ++i)
   {
     pso_algorithm.evolve<xtensor_x_type, xtensor_x_type, objective_type,
