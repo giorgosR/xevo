@@ -1,6 +1,7 @@
-[![Build Status](https://dev.azure.com/giorgosragos/giorgosr-xevo/_apis/build/status/giorgosR.xevo?branchName=master)](https://dev.azure.com/giorgosragos/giorgosr-xevo/_build/latest?definitionId=3&branchName=master)
-
 ![xevo](doc/images/xevo_logo.png)
+
+[![Build Status](https://dev.azure.com/giorgosragos/giorgosr-xevo/_apis/build/status/giorgosR.xevo?branchName=master)](https://dev.azure.com/giorgosragos/giorgosr-xevo/_build/latest?definitionId=3&branchName=master)
+[![Documentation Status](https://readthedocs.org/projects/xevo/badge/?version=latest)](https://xevo.readthedocs.io/en/latest/?badge=latest)
 
 # Evolutionary and Swarm Intelligence algorithms
 

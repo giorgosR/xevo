@@ -6,4 +6,4 @@
 version: 2
 
 conda:
-    file: conda/docs.yml
+    environment: conda/docs.yml
