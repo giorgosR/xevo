@@ -1,0 +1,35 @@
+PROJECT_NAME           = "xevo"
+PROJECT_BRIEF          = "XEVO Documentation"
+FILE_PATTERNS          = ../include/xevo/*.hpp
+FULL_PATH_NAMES        = NO
+RECURSIVE              = YES
+SOURCE_BROWSER         = NO
+VERBATIM_HEADERS       = NO
+SHOW_INCLUDE_FILES     = YES
+EXTRACT_PRIVATE        = YES
+
+HIDE_UNDOC_MEMBERS     = YES
+
+
+#---------------------------------------------------------------------------
+# Configuration options related to the LaTeX output
+#---------------------------------------------------------------------------
+GENERATE_LATEX         = NO
+LATEX_OUTPUT           = latex
+LATEX_CMD_NAME         = latex
+MAKEINDEX_CMD_NAME     = makeindex
+COMPACT_LATEX          = NO
+PAPER_TYPE             = a4
+
+
+#---------------------------------------------------------------------------
+# Configuration options related to the MATHJAX output
+#---------------------------------------------------------------------------
+USE_MATHJAX             = YES
+
+#---------------------------------------------------------------------------
+# Configuration options related to the XML output
+#---------------------------------------------------------------------------
+GENERATE_XML           = YES
+XML_OUTPUT             = xml
+XML_PROGRAMLISTING     = YES
