@@ -1,6 +1,9 @@
+#---------------------------------------------------------------------------
+# Doxygen file for readthedocs only
+#---------------------------------------------------------------------------
 PROJECT_NAME           = "xevo"
 PROJECT_BRIEF          = "XEVO Documentation"
-FILE_PATTERNS          = ../include/xevo/*.hpp
+INPUT             = ../include/xevo
 FULL_PATH_NAMES        = NO
 RECURSIVE              = YES
 SOURCE_BROWSER         = NO
@@ -9,7 +12,12 @@ SHOW_INCLUDE_FILES     = YES
 EXTRACT_PRIVATE        = YES
 
 HIDE_UNDOC_MEMBERS     = YES
+WARN_IF_UNDOCUMENTED = NO
 
+#---------------------------------------------------------------------------
+# Configuration options related to the HTML output
+#---------------------------------------------------------------------------
+GENERATE_HTML     = NO
 
 #---------------------------------------------------------------------------
 # Configuration options related to the LaTeX output
