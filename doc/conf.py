@@ -14,9 +14,16 @@
 #
 import os
 import sys
+import subprocess
+
+on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
+
+if on_rtd:
+    subprocess.call('doxygen', shell=True)
 # sys.path.insert(0, os.path.abspath('.'))
 #sys.path.insert(0, os.path.abspath('./'))
 
+import sphinx_rtd_theme
 # -- Project information -----------------------------------------------------
 
 project = u'xevo'
@@ -45,6 +52,7 @@ extensions = [
     'sphinx.ext.coverage',
     'sphinx.ext.mathjax'
 ]
+
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -160,7 +168,8 @@ breathe_default_project = "xevo"
 
 #breathe_doxygen_config_options = {'EXCLUDE_SYMBOLS': '^'}
 
-#breathe_projects_source = {"auto" : ( "../include", [".h"] )}
+#breathe_projects_source = {"xevo" : ( "xml" )}
+breathe_projects = { 'xevo': 'xml' }
 
 # -- Options for todo extension ----------------------------------------------
 
