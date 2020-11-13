@@ -28,6 +28,7 @@ template<class E, class POP = Population, typename... PopArgs,
   typename... MutArgs, typename T = typename std::decay_t<E>::value_type>
  void evolve(xt::xexpression<E>& X, OBJ objective_f, std::tuple<ElitArgs...> elitargs,
   std::tuple<SelArgs...> selargs, std::tuple<CrossArgs...> crossargs, std::tuple<MutArgs...> mutargs);
+};
 ```
 
 * Initialise
@@ -37,7 +38,7 @@ template<class E, class POP = Population, typename... PopArgs,
 xevo::ga::initialise<E, POP>(E& X, std::tuple<PopArgs>(...) popargs)
 ```
 
-This a method to initialise the initial population stored in `X` array. The user can provide a Population functor so as to control how the initialisation will be calculated.
+This is a method to initialise the initial population stored in `X` array. The user can provide a Population functor so as to control how the initialisation will be calculated.
 
 * evolve
 
@@ -56,11 +57,11 @@ Optimise Rosenbrock function with `xevo::ga`.
 
 Rosenbrock function is expressed as:
 
-$$
+$
  f(x_1, x_2) = 100(x_1^2 - x_2) + (1 - x_1)^2 \quad with \quad \bf{X} \quad \in \left[-3, 3\right]
-$$
+$
 
-The first step is to provide the objective function as:
+The first step is to provide the objective function as (we use scaling):
 
 ```cpp
 struct Rosenbrock_scaled
@@ -74,11 +75,6 @@ struct Rosenbrock_scaled
     T y_max = y(max_index);
     T factor = (-1)*(beta / y_max);
     return xt::eval(xt::exp(factor * (y)));
-  }
-
-  std::pair<std::vector<double>, std::vector<double>> bounder() const
-  {
-      return {{-3, -3}, {3, 3}};
   }
 
 private:
