@@ -45,8 +45,9 @@ TEST(pso, void_evolve_sphere)
   xevo::Sphere objective_f;
 
   xevo::pso pso_algorithm;
-  pso_algorithm.initialise(X, V);
-  
+  pso_algorithm.initialise<xt::xarray<double>, xevo::Population>(X);
+  pso_algorithm.initialise<xt::xarray<double>, xevo::Velocity_zero>(V);
+
   xt::xarray<double> XB(X);
   xt::xarray<double> YB = xt::ones<double>(shape_y)*max_double_value;
 
@@ -94,7 +95,7 @@ TEST(pso, void_evolve_rosenbork)
   for (auto i{0}; i<num_generations; ++i)
   {
     pso_algorithm.evolve(X, XB, YB, V, objective_f, std::make_tuple(),
-     std::make_tuple(0.5, 0.8, 0.9), std::make_tuple());
+     std::make_tuple(0.5, 1.0, 1.0), std::make_tuple());
   }
 
   auto y_args_sort = xt::argsort(YB); 
