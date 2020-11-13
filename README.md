@@ -57,11 +57,11 @@ Optimise Rosenbrock function with `xevo::ga`.
 
 Rosenbrock function is expressed as:
 
-$
- f(x_1, x_2) = 100(x_1^2 - x_2) + (1 - x_1)^2 \quad with \quad \bf{X} \quad \in \left[-3, 3\right]
-$
+![rosenbrock](https://render.githubusercontent.com/render/math?math=f(x_1,%20x_2)%20=%20100(x_1^2%20-%20x_2)%20+%20(1%20-%20x_1)^2%20\quad%20with%20\quad%20\bf{X}%20\quad%20\in%20\left[-3,%203\right])
 
 The first step is to provide the objective function as (we use scaling):
+
+![rosenbrock_scaled](https://render.githubusercontent.com/render/math?math=f_{scaled}(x_1,%20x_2)%20=e^{\frac{-1*\beta}{max(f)}})
 
 ```cpp
 struct Rosenbrock_scaled
