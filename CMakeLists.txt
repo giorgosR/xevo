@@ -4,7 +4,7 @@ project(xevo)
 # set versioning
 set(XEVO_VERSION_MAJOR "0" CACHE STRING "Major version")
 set(XEVO_VERSION_MINOR "0" CACHE STRING "Minor version")
-set(XEVO_VERSION_PATCH "1" CACHE STRING "Patch number")
+set(XEVO_VERSION_PATCH "2" CACHE STRING "Patch number")
 set(XEVO_VERSION_TWEAK "0" CACHE STRING "tweak number")
 set(XEVO_VERSION_STRING "${XEVO_VERSION_MAJOR}"
 								        ".${XEVO_VERSION_MINOR}"
@@ -29,11 +29,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake ${CMAKE_MODULE_PATH})
 
 if(ENABLE_THREADS AND BUILD_TESTS)
+	find_package(GTest REQUIRED)
   find_package(Threads REQUIRED)
-  add_definitions(-DENABLE_THREADS)
-  message(STATUS "Threads enabled.")
 endif(ENABLE_THREADS AND BUILD_TESTS)
-
 
 find_package(xtensor REQUIRED)
 
@@ -56,6 +54,7 @@ set(XEVO_SOURCES_TEST test/unittest_main.cpp
 
 set(XEVO_HEADERS ${XEVO_INCLUDE}/xevo/ga.hpp
                  ${XEVO_INCLUDE}/xevo/pso.hpp
+								 ${XEVO_INCLUDE}/xevo/pso_ga.hpp
 								 ${XEVO_INCLUDE}/xevo/functors.hpp
 								 ${XEVO_INCLUDE}/xevo/analytical_functions.hpp)
 
@@ -107,28 +106,13 @@ if(INSTALL_LIB)
 endif(INSTALL_LIB)
 
 if(BUILD_TESTS)
-  include(ExternalProject)
-  include(External_googletest)
-  ADD_DEFINITIONS(-DTEST_XEVO)
-  if(UNIX)
-    set(GTEST_LIBRARIES ${CMAKE_BINARY_DIR}/lib/installed/lib/libgtestd.a
-                        ${CMAKE_BINARY_DIR}/lib/installed/lib/libgtest_maind.a)
-    message("GTEST_LIBS: ${GTEST_LIBRARIES}")
-  else()
-   set(GTEST_LIBRARIES ${CMAKE_CURRENT_BINARY_DIR}/lib/installed/lib/gtestd.lib
-                       ${CMAKE_CURRENT_BINARY_DIR}/lib/installed/lib/gtest_maind.lib)
-   message("GTEST_LIBS: ${GTEST_LIBRARIES}")
-  endif(UNIX)
-endif(BUILD_TESTS)
-
-if(BUILD_TESTS)
+ ADD_DEFINITIONS(-DTEST_XEVO)
  add_executable(xevo_tests ${XEVO_SOURCES_TEST} ${XEVO_INCLUDE})
  target_include_directories(xevo_tests PRIVATE ${xevo_INCLUDE_DIRS} 
-                                              ${xtensor_INCLUDE_DIRS}
-                                              ${CMAKE_BINARY_DIR}/lib/installed/include)
+                                               ${xtensor_INCLUDE_DIRS}
+                                               ${GTEST_INCLUDE_DIRS})
 
- target_link_libraries(xevo_tests PRIVATE ${GTEST_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
- add_dependencies(xevo_tests googletest)
+ target_link_libraries(xevo_tests GTest::GTest GTest::Main)
 endif(BUILD_TESTS)
 
 if(BUILD_TESTS AND MSVC)
