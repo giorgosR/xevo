@@ -28,6 +28,23 @@ class pso
 public:
 
 /**
+ * @brief method to initialise position or velocity of swarm for pso
+ * 
+ * @tparam E xtensor type for position and velocity initial vectors 
+ * @tparam POS functor type for generating the initial positions
+ * @tparam PosArgs type of arguments for initialising position functor
+ * @tparam T value type of xtensor 
+ * @param X array of initial bird positions
+ * @param posargs (optional) arguments for position functor
+ */
+template<class E, class POS = Population, typename... PosArgs, 
+ typename T = typename std::decay_t<E>::value_type>
+ void initialise(xt::xexpression<E>& X, std::tuple<PosArgs...> posargs = std::make_tuple())
+ {
+   initialise<E, POS>(X, std::move(posargs), std::index_sequence_for<PosArgs...>{});
+ }
+
+/**
  * @brief method to initialise position and velocity of swarm for pso
  * 
  * @tparam E xtensor type for position and velocity initial vectors 
@@ -122,6 +139,28 @@ template<class E, class POS = Population, class VEL = Velocity_zero, typename...
  }
 
  private:
+
+/**
+ * @brief method to initialise position or velocity of swarm for pso
+ * 
+ * @tparam E xtensor type for position and velocity initial vectors 
+ * @tparam POS functor type for generating the initial positions
+ * @tparam PopArgs type of arguments for initialising position functor
+ * @tparam PIs number of arguments for initial position functor
+ * @tparam T value type of xtensor 
+ * @param X array of initial bird positions
+ * @param popargs (optional) arguments for position functor
+ */
+ template<class E, class POS = Population, typename... PosArgs,
+  std::size_t... PIs, typename T = typename std::decay_t<E>::value_type>
+ void initialise(xt::xexpression<E>& X, std::tuple<PosArgs...>&& posargs, std::index_sequence<PIs...>)
+ {
+   E& _X = X.derived_cast();
+   
+   POS f_pos(std::get<PIs>(std::move(posargs))...);
+   f_pos(_X);
+ }
+
 
 /**
  * @brief method to initialise position and velocity of swarm for pso

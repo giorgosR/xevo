@@ -9,3 +9,4 @@ dependencies:
   - conda-forge::make
   - conda-forge::xtensor
   - conda-forge::xsimd
+  - conda-forge::gtest

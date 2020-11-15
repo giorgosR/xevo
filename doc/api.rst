@@ -20,6 +20,14 @@ Analytical functions
    :project: xevo
    :members:
 
+.. doxygenstruct:: xevo::Rastriginsfcn 
+   :project: xevo
+   :members:
+
+.. doxygenstruct:: xevo::Rastriginsfcn_scaled 
+   :project: xevo
+   :members:
+
 Functors
 --------
 
@@ -43,6 +51,45 @@ Functors
    :project: xevo
    :members:
 
+.. doxygenstruct:: xevo::Position
+   :project: xevo
+   :members:
+
+.. doxygenstruct:: xevo::Velocity
+   :project: xevo
+   :members:
+
+.. doxygenstruct:: xevo::Velocity_zero
+   :project: xevo
+   :members:
+
+.. doxygenstruct:: xevo::Velocity_ring_topology
+   :project: xevo
+   :members:
+
+.. doxygenstruct:: xevo::Velocity_cf_ring_topology
+   :project: xevo
+   :members:
+
+.. doxygenstruct:: xevo::Position_pso_ga
+   :project: xevo
+   :members:
+
+.. doxygenstruct:: xevo::Selection_best_pso
+   :project: xevo
+   :members:
+
+.. doxygenstruct:: xevo::Selection_best_pso_ga
+   :project: xevo
+   :members:
+
+.. doxygenstruct:: xevo::Terminate_gen_max
+   :project: xevo
+   :members:
+
+.. doxygenstruct:: xevo::Terminate_tol
+   :project: xevo
+   :members:
 
 Evolutionary algorithms
 -----------------------
@@ -53,8 +100,15 @@ Evolutionary algorithms
 
 
 Swarm Intelligence algorithms
------------------------
+-----------------------------
 
 .. doxygenclass:: xevo::pso 
+   :project: xevo
+   :members:
+
+Hybrid algorithms
+-----------------
+
+.. doxygenclass:: xevo::pso_ga 
    :project: xevo
    :members:

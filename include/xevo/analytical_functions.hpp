@@ -150,7 +150,7 @@ namespace xevo
       private:
 
     /**
-     * @brief private method to evaluate branin function
+     * @brief private method to evaluate Rosenbrock function
      * 
      * @tparam E xtensor type
      * @tparam value_type value type of E 
@@ -293,6 +293,146 @@ namespace xevo
        return {{-1, -1}, {1, 1}};
     }
 
+  };  
+
+
+  /**
+   * @brief Rastrigin's function.
+   *
+   * The Rastrigin's function is expressed as
+   *
+   * \f[
+   *   f(x_1, x_2) = 20 + x_1^2 + x_2^2 - 10(cos(2\pi x_1) + cos(2\pi x_2)) \quad with \quad \mathbf{X} \in \left[-5, 5 \right]
+   * \f]
+   *
+   */
+  struct Rastriginsfcn
+  {
+    /**
+     * @brief operator to evaluate the objective function.
+     *
+     * @tparam E xtensor type
+     * @tparam value_type xtensor value type
+     * @param X array to be evaluated
+     * @return auto evaluated array
+     */
+    template <class E, typename T = typename std::decay_t<E>::value_type>
+    auto operator()(const xt::xexpression<E>& X)
+    {
+      const E& _X = X.derived_cast();
+
+      auto shape = _X.shape();
+      std::size_t dim = _X.dimension();
+      if (dim != 2)
+      {
+        throw std::runtime_error("The input array should be of dim 2");
+      }
+      xt::xtensor<T, 1, xt::layout_type::row_major> _x1(xt::view(_X, xt::all(), 0));
+      xt::xtensor<T, 1, xt::layout_type::row_major> _x2(xt::view(_X, xt::all(), 1));
+
+      // scale in [-5, 5]
+      auto X1 = 10.0 * _x1 - 5;
+      auto X2 = 10.0 * _x2 - 5;
+
+      xt::xtensor<T, 1, xt::layout_type::row_major> y =
+        xt::eval(20 + X1 * X1 + X2 * X2 - 10 * (xt::cos(2 * xt::numeric_constants<double>::PI * X1) +
+          xt::cos(2 * xt::numeric_constants<double>::PI * X2)));
+
+      return y;
+    }
+
+
+    /**
+     * @brief get the bounder of Rastrigin function
+     *
+     * @return std::pair<std::vector<double>, std::vector<double>>
+     */
+    std::pair<std::vector<double>, std::vector<double>> bounder() const
+    {
+      return { {-5, -5}, {5, 5} };
+    }
+  };
+
+  /**
+   * @brief Rastrigin's function scaled.
+   *
+   * The Rastrigin's function is expressed as
+   *
+   * \f[
+   *   f(x_1, x_2) = 20 + x_1^2 + x_2^2 - 10(cos(2\pi x_1) + cos(2\pi x_2)) \quad with \quad \mathbf{X} \in \left[-5, 5 \right]
+   * \f]
+   *
+   * This function scales the Rastrigin's function as
+   *
+   * \f[
+   *   f_{scaled}(x_1, x_2) = e^{-\frac{\beta}{max(f(x_1, x_2))} f(x_1, x_2)}
+   * \f]   
+   *
+   */
+  struct Rastriginsfcn_scaled
+  {
+    /**
+     * @brief operator to evaluate the objective function.
+     *
+     * @tparam E xtensor type
+     * @tparam value_type xtensor value type
+     * @param X array to be evaluated
+     * @return auto evaluated array
+     */
+    template <class E, typename T = typename std::decay_t<E>::value_type>
+    auto operator()(const xt::xexpression<E>& X)
+    {
+      double beta = 8.0;
+      auto y = evaluate(X);
+      auto max_index = xt::argmax(y)();
+      T y_max = y(max_index);
+      T factor = (-1) * (beta / y_max);
+      return xt::eval(xt::exp(factor * (y)));
+    }
+
+    /**
+     * @brief get the bounder of Rastrigin function
+     *
+     * @return std::pair<std::vector<double>, std::vector<double>>
+     */
+    std::pair<std::vector<double>, std::vector<double>> bounder() const
+    {
+      return { {-5, -5}, {5, 5} };
+    }
+
+  private:
+    /**
+     * @brief operator to evaluate the objective function.
+     *
+     * @tparam E xtensor type
+     * @tparam value_type xtensor value type
+     * @param X array to be evaluated
+     * @return auto evaluated array
+     */
+    template <class E, typename T = typename std::decay_t<E>::value_type>
+    auto evaluate(const xt::xexpression<E>& X)
+    {
+      const E& _X = X.derived_cast();
+
+      auto shape = _X.shape();
+      std::size_t dim = _X.dimension();
+      if (dim != 2)
+      {
+        throw std::runtime_error("The input array should be of dim 2");
+      }
+      xt::xtensor<T, 1, xt::layout_type::row_major> _x1(xt::view(_X, xt::all(), 0));
+      xt::xtensor<T, 1, xt::layout_type::row_major> _x2(xt::view(_X, xt::all(), 1));
+
+      // scale in [-5, 5]
+      auto X1 = 10.0 * _x1 - 5;
+      auto X2 = 10.0 * _x2 - 5;
+
+      xt::xtensor<T, 1, xt::layout_type::row_major> y =
+        xt::eval(20 + X1 * X1 + X2 * X2 - 10 * (xt::cos(2 * xt::numeric_constants<double>::PI * X1) +
+          xt::cos(2 * xt::numeric_constants<double>::PI * X2)));
+
+      return y;
+    }
   };
 
 }

@@ -190,7 +190,7 @@ namespace xevo
       {
         for (std::size_t i{ 0 }; i < shape[0]; ++i)
         {
-          T value_min = std::numeric_limits<T>::max();
+          T value_min = _YB(i);
           for (std::size_t j{ 0 }; j < 2; ++j)
           {
             int index = i - 1 + j;
@@ -218,7 +218,7 @@ namespace xevo
       {
         for (std::size_t i{ 0 }; i < shape[0]; ++i)
         {
-          T value_max = std::numeric_limits<T>::min();
+          T value_max = _YB(i);
           for (std::size_t j{ 0 }; j < 2; ++j)
           {
             int index = i - 1 + j;
@@ -255,6 +255,114 @@ namespace xevo
   };
 
   /**
+   * @brief Functor to calculate the velocity with ring topology at the next iteration
+   *
+   * M. Clerc and J. Kennedy, The particle swarm - explosion, stability, and convergence in a
+   * multidimensional complex space, Evolutionary Computation, IEEE Transactions on, vol. 6, no. 1, pp.58-73, Feb 2002.
+   * 
+   *  \f[
+   *    V_{ij}^{t+1} = \chi \left( \omega V_{ij}^t + c_1 r_1^t \left( pbestX_{ij} - X_{ij}^t \right) +
+   *                    c_2 r_2^t \left( ringbestX_{ij} - X_{ij}^t \right) \right)
+   *  \f]
+   *
+   */
+  struct Velocity_cf_ring_topology
+  {
+    Velocity_cf_ring_topology(double x, double c1, double c2,
+      std::size_t neighborhood_size, bool minimise = true) : _x{ x },
+      _c1{ c1 }, _c2{ c2 }, _neighborhood_size{ neighborhood_size },
+      _minimise{ minimise }
+    {
+
+    }
+
+    template <class E, class F, typename T = typename std::decay_t<E>::value_type>
+    void operator()(xt::xexpression<E>& X, xt::xexpression<E>& XB,
+      xt::xexpression<E>& V, xt::xexpression<F>& YB)
+    {
+      E& _X = X.derived_cast();
+      E& _XBest = XB.derived_cast();
+      F& _YB = YB.derived_cast();
+      E& _V = V.derived_cast();
+      auto shape = _X.shape();
+      std::array<std::size_t, 1> shape_rand = { shape[0] };
+      F r1 = xt::random::rand<double>(shape_rand, 0.0, 1.0);
+      F r2 = xt::random::rand<double>(shape_rand, 0.0, 1.0);
+
+      E gX_best(_XBest);
+
+      std::size_t _side_neighboors = std::ceil(_neighborhood_size / 2);
+
+      if (_minimise)
+      {
+        for (std::size_t i{ 0 }; i < shape[0]; ++i)
+        {
+          T value_min = _YB(i);
+          for (std::size_t j{ 0 }; j < _neighborhood_size + 1; ++j)
+          {
+            int index = i - _side_neighboors + j;
+            if (index < 0)
+            {
+              index = shape[0] + index;
+            }
+            if (index >= shape[0])
+            {
+              index = index - shape[0];
+            }
+            T _value = _YB(index);
+            if (_value < value_min)
+            {
+              value_min = _value;
+              xt::view(gX_best, i, xt::all()) = xt::view(_XBest, index, xt::all());
+            }
+
+          }
+          xt::view(_V, i, xt::all()) = _x * (xt::view(_V, i, xt::all()) + _c1 * r1(i) *
+            (xt::view(_XBest - _X, i, xt::all())) + _c2 * r2(i) * (xt::view(gX_best, i, xt::all()) - xt::view(_X, i, xt::all())));
+        }
+      }
+      else
+      {
+        for (std::size_t i{ 0 }; i < shape[0]; ++i)
+        {
+          T value_max = _YB(i);
+          for (std::size_t j{ 0 }; j < _neighborhood_size + 1; ++j)
+          {
+            int index = i - _side_neighboors + j;
+            if (index < 0)
+            {
+              index = shape[0] + index;
+            }
+            if (index >= shape[0])
+            {
+              index = index - shape[0];
+            }
+            T _value = _YB(index);
+            if (_value > value_max)
+            {
+              value_max = _value;
+              xt::view(gX_best, i, xt::all()) = xt::view(_XBest, index, xt::all());
+            }
+
+          }
+          xt::view(_V, i, xt::all()) = _x * (xt::view(_V, i, xt::all()) + _c1 * r1(i) *
+            (xt::view(_XBest - _X, i, xt::all())) + _c2 * r2(i) * (xt::view(gX_best, i, xt::all()) - xt::view(_X, i, xt::all())));
+        }
+
+      }
+
+
+    }
+
+  private:
+    double _x;
+    double _c1;
+    double _c2;
+    std::size_t _neighborhood_size;
+    bool _minimise;
+  };
+
+  /**
    * @brief Functor for calculating position at t + 1.
    * 
    * \f[ X_{i,j}^(t+1) = X_{i,j}^(t) + V_{i,j}^(t+1) \f]
@@ -272,7 +380,10 @@ namespace xevo
     }
   };
 
-
+  /**
+   * @brief Functor for selecting the best solutions for pso
+   * 
+   */
   struct Selection_best_pso
   {
     Selection_best_pso(bool minimise = true) : _minimise{minimise}
@@ -310,6 +421,162 @@ namespace xevo
           {
             _YB(i) = _Y(i);
             xt::view(_XBest, i, xt::all()) = xt::view(_X, i, xt::all());
+          }
+        }
+      }
+    }
+  private:
+    bool _minimise;
+  };
+
+
+  /**
+   * @brief Functor to calculate the velocity at the next iteration
+   *
+   * \f[ 
+   *   \mathbf{x}_i^{t + 1} = \mathbf{x}_i^{t} + w \left( \mathbf{x}_i^{t} - \mathbf{x}_i^{t-1} \right) +
+   *                          c_1 r_1 \left( \mathbf{p}_{b, i}^t - \mathbf{x}_i^{t} \right) +
+   *                          c_2 r_2 \left( \mathbf{p}_g^t - \mathbf{x}_i^{t} \right)
+   * \f]
+   *
+   */
+  struct Position_pso_ga
+  {
+    Position_pso_ga(double w, double c1, double c2, std::size_t neighborhood_size, bool minimise = false) : _w{ w },
+      _c1{ c1 }, _c2{ c2 }, _neighborhood_size{ neighborhood_size }, _minimise{ minimise }
+    {
+
+    }
+
+    template <class E, class F, typename T = typename std::decay_t<E>::value_type>
+    void operator()(xt::xexpression<E>& X, xt::xexpression<E>& Xm1,
+      xt::xexpression<E>& A, xt::xexpression<F>& YB)
+    {
+      E& _X = X.derived_cast();
+      E& _Xm1 = Xm1.derived_cast();
+      F& _YB = YB.derived_cast();
+      E& _A = A.derived_cast();
+      auto shape = _X.shape();
+      std::array<std::size_t, 1> shape_rand = { shape[0] };
+      F r1 = xt::random::rand<double>(shape_rand, 0.0, 1.0);
+      F r2 = xt::random::rand<double>(shape_rand, 0.0, 1.0);
+
+      std::size_t _side_neighboors = std::ceil(_neighborhood_size / 2);
+      auto gx_best(_A);
+
+
+      if (_minimise)
+      {
+        for (std::size_t i{ 0 }; i < shape[0]; ++i)
+        {
+          T value_min = _YB(i);
+          for (std::size_t j{ 0 }; j < _neighborhood_size + 1; ++j)
+          {
+            int index = i - _side_neighboors + j;
+            if (index < 0)
+            {
+              index = shape[0] + index;
+            }
+            if (index >= shape[0])
+            {
+              index = index - shape[0];
+            }
+            T _value = _YB(index);
+            if (_value < value_min)
+            {
+              value_min = _value;
+              xt::view(gx_best, i, xt::all()) = xt::view(_A, index, xt::all());
+            }
+
+          }
+
+          xt::view(_X, i, xt::all()) = xt::view(_X, i, xt::all()) +  _w * (xt::view(_X, i, xt::all()) - xt::view(_Xm1, i, xt::all())) +
+            _c1 * r1(i) *(xt::view(_A, i, xt::all()) - xt::view(_X, i, xt::all())) +
+            _c2 * r2(i) * (xt::view(gx_best, i, xt::all())  - xt::view(_X, i, xt::all()));
+        }
+      }
+      else
+      {
+
+        for (std::size_t i{ 0 }; i < shape[0]; ++i)
+        {
+          T value_max = _YB(i);
+          for (std::size_t j{ 0 }; j < _neighborhood_size + 1; ++j)
+          {
+            int index = i - _side_neighboors + j;
+            if (index < 0)
+            {
+              index = shape[0] + index;
+            }
+            if (index >= shape[0])
+            {
+              index = index - shape[0];
+            }
+            T _value = _YB(index);
+            if (_value > value_max)
+            {
+              value_max = _value;
+              xt::view(gx_best, i, xt::all()) = xt::view(_A, index, xt::all());
+            }
+
+          }
+          xt::view(_X, i, xt::all()) = xt::view(_X, i, xt::all()) + _w * (xt::view(_X, i, xt::all()) - xt::view(_Xm1, i, xt::all())) +
+            _c1 * r1(i) * (xt::view(_A, i, xt::all()) - xt::view(_X, i, xt::all())) +
+            _c2 * r2(i) * (xt::view(gx_best, i, xt::all())  - xt::view(_X, i, xt::all()));
+        }
+      }
+    }
+
+  private:
+    double _w;
+    double _c1;
+    double _c2;
+    std::size_t _neighborhood_size;
+    bool _minimise;
+  };
+
+  
+  /**
+   * @brief functor for selecting the best and archive it.
+   * 
+   */
+  struct Selection_best_pso_ga
+  {
+    Selection_best_pso_ga(bool minimise = false) : _minimise{ minimise }
+    {
+
+    }
+
+    template <class E, class F, typename T = typename std::decay_t<E>::value_type>
+    void operator()(xt::xexpression<E>& X, xt::xexpression<E>& A, xt::xexpression<F>& Y,
+      xt::xexpression<F>& YB)
+    {
+      E& _X = X.derived_cast();
+      F& _Y = Y.derived_cast();
+      E& _A = A.derived_cast();
+      F& _YB = YB.derived_cast();
+
+      auto shape = _X.shape();
+      std::size_t no_individuals = shape[0];
+      if (_minimise)
+      {
+        for (std::size_t i{ 0 }; i < no_individuals; ++i)
+        {
+          if (_Y(i) < _YB(i))
+          {
+            _YB(i) = _Y(i);
+            xt::view(_A, i, xt::all()) = xt::view(_X, i, xt::all());
+          }
+        }
+      }
+      else
+      {
+        for (std::size_t i{ 0 }; i < no_individuals; ++i)
+        {
+          if (_Y(i) > _YB(i))
+          {
+            _YB(i) = _Y(i);
+            xt::view(_A, i, xt::all()) = xt::view(_X, i, xt::all());
           }
         }
       }
@@ -386,19 +653,31 @@ namespace xevo
   /**
    * @brief Cross over functor
    *
+   * This functor calculates for single arithmetic crossover
+   *  For two parents:
+   *
+   *  \f[ X_1: {x_1^1, x_1^2, ... , x_1^k, x_1^{k+1}, ..., x_1^n} \f]
+   *
+   *  \f[ X_2: {x_2^1, x_2^2, ... , x_2^k, x_2^{k+1}, ..., x_2^n} \f]
+   *
+   * Peak random gene at \f${k}\f$. Then the two children become:
+   *
+   * \f[ X_1: {x_1^1, x_1^2, ... , \alpha x_2^k + (1 - \alpha)x_1^k, x_1^{k+1}, ..., x_1^n} \f]
+   *
+   * \f[ X_2: {x_2^1, x_2^2, ... , \alpha x_1^k + (1 - \alpha)x_2^k, x_2^{k+1}, ..., x_2^n} \f]
    */
   struct Crossover
   {
     /**
      * @brief Constructor
-     * 
-     * @param crossoverrate cross over rate 
+     *
+     * @param crossoverrate cross over rate
      */
     Crossover(double crossoverrate) :
-     _crossover_rate(crossoverrate)
-     {
-       
-     }
+      _crossover_rate(crossoverrate)
+    {
+
+    }
 
     template <class E,
       typename T = typename std::decay_t<E>::value_type>
@@ -406,42 +685,64 @@ namespace xevo
     {
       double alpha = 0.5;
       const E& _X = X.derived_cast();
+      E _X_out(_X);
 
       auto shape_X = _X.shape();
       std::size_t num_of_indiv = shape_X[0];
       std::size_t num_of_vars = shape_X[1];
-      std::size_t num_crossover = static_cast<std::size_t>(
-        floorl(_crossover_rate * num_of_indiv));
-      std::size_t _cross_run{};
-      if ((num_crossover % 2) == 0)
+
+      std::array<std::size_t, 1> shape_rand_rc = { num_of_indiv };
+      auto random_rc = xt::random::rand<double>(shape_rand_rc, 0.0, 1.0);
+      std::vector<std::size_t> xover_inds;
+      for (auto i = 0; i < num_of_indiv; ++i)
       {
-        _cross_run = num_crossover / 2;
+        if (random_rc(i) < _crossover_rate)
+        {
+          xover_inds.push_back(i);
+        }
+      }
+
+      std::size_t xover_size = xover_inds.size();
+      bool is_even = false;
+      if ((xover_size % 2) == 0)
+      {
+        is_even = true;
+      }
+
+      std::array<std::size_t, 1> shape_rand_var = { xover_size };
+      auto random_index = xt::random::randint<std::size_t>(shape_rand_var, 0,
+        num_of_vars);
+      //auto random_index_x = xt::random::randint<std::size_t>(shape_rand_var, 0,
+      //  xover_size);
+      std::random_device rd;
+      std::mt19937 g(rd());
+
+      std::shuffle(xover_inds.begin(), xover_inds.end(), g);
+
+      std::size_t run{ 0 };
+      if (is_even)
+      {
+        run = xover_size;
       }
       else
       {
-        _cross_run = (num_crossover / 2) + 1;
+        run = xover_size - 1;
       }
-
-      std::array<std::size_t, 2> shape_out = { 2 * _cross_run, num_of_vars };
-      E _X_out = xt::view(_X, xt::range(0, 2 * _cross_run), xt::all());
-
-      std::array<std::size_t, 1> shape_rand_var = { _cross_run };
-      auto random_index = xt::random::randint<std::size_t>(shape_rand_var, 0,
-        num_of_vars);
-
-      for (std::size_t i{ 0 }; i < _cross_run; ++i)
+      for (std::size_t i{ 0 }; i < (run / 2); ++i)
       {
-        std::size_t x_k_index = 2*i;
-        std::size_t y_k_index = 2*i+1;
-        T x_k = alpha * _X(y_k_index, random_index(0, i)) + (1 - alpha)*_X(x_k_index, random_index(0, i));
-        T y_k = alpha * _X(x_k_index, random_index(0, i)) + (1 - alpha)*_X(y_k_index, random_index(0, i));
-        _X_out(x_k_index, random_index(0, i)) = x_k;
-        _X_out(y_k_index, random_index(0, i)) = y_k;
+        //std::size_t rd_x = random_index_x(2 * i);
+        //std::size_t rd_y = random_index_x(2 * i + 1);
+        std::size_t x_k_index = xover_inds[2 * i];
+        std::size_t y_k_index = xover_inds[2 * i + 1];
+        T x_k = alpha * _X(y_k_index, random_index(i)) + (1 - alpha) * _X(x_k_index, random_index(i));
+        T y_k = alpha * _X(x_k_index, random_index(i)) + (1 - alpha) * _X(y_k_index, random_index(i));
+        _X_out(x_k_index, random_index(i)) = x_k;
+        _X_out(y_k_index, random_index(i)) = y_k;
       }
 
       return _X_out;
     }
-    private:
+  private:
     double _crossover_rate; ///< cross over rate
   };
 
@@ -473,12 +774,11 @@ namespace xevo
   {
     /**
      * @brief Construct a new Mutation_functor_polynomial object
-     * 
-     * @param p_m: polynomial mutation probability
+     *
+     * @param mr : mutation rate
      * @param eta_m: index parameter
      */
-    Mutation_polynomial(double p_m, double eta_m) : 
-    _p_m{p_m}, _eta_m{eta_m}
+    Mutation_polynomial(double mr, double eta_m) : _mutation_rate{ mr }, _eta_m{ eta_m }
     {
 
     }
@@ -488,42 +788,46 @@ namespace xevo
     {
       const E& _X = X.derived_cast();
       E out(_X);
-      auto shape_x = _X.shape();
-      std::size_t num_mutations = shape_x[0];
-      std::size_t num_variables = shape_x[1];
-      std::array<std::size_t, 1> shape_random = { num_mutations };
-      auto random_num = xt::random::randint<std::size_t>(shape_random, 0, num_variables);
-      
+      auto shape_input = _X.shape();
+      std::size_t total_lenth_of_gen = shape_input[0] * shape_input[1];
+      std::size_t num_mutations = static_cast<std::size_t>(floorl(_mutation_rate * total_lenth_of_gen));
+      std::array<std::size_t, 1> shape = { num_mutations };
+      auto random_num = xt::random::randint<std::size_t>(shape, 1, total_lenth_of_gen);
+
       std::random_device rd;
       std::mt19937 gen(rd());
       std::uniform_real_distribution<T> distribution(0.0, 1.0);
-      
+
       for (std::size_t i{ 0 }; i < num_mutations; ++i)
       {
         std::size_t rn = random_num(i);
+        std::size_t num_genes = shape_input[1];
+        std::size_t index_i = (rn / num_genes) - 1;
+        std::size_t index_j = rn - index_i * num_genes - 1;
+        std::array<std::size_t, 1> shape_noise = { 1 };
 
-        T p = _X(i, rn);
+        T p = _X(index_i, index_j);
         T p_n{};
         T u = distribution(gen);
-        
+
         if (u <= 0.5)
         {
-          T delta = pow(2*u, 1/(1+_eta_m)) - 1.0;
-          p_n = p + delta*(p);
+          T delta = pow(2 * u, 1 / (1 + _eta_m)) - 1.0;
+          p_n = p + delta * (p);
         }
         else
         {
-          T delta = 1 - pow(2*(1-u), 1/(1+_eta_m));
-          p_n = p + delta*(1.0 - p);
+          T delta = 1 - pow(2 * (1 - u), 1 / (1 + _eta_m));
+          p_n = p + delta * (1.0 - p);
         }
 
-        out(i, rn) = p_n;
+        out(index_i, index_j) = p_n;
       }
 
       return out;
     }
   private:
-    double _p_m; ///< polynomial mutation probability (\f$ p_m = 1/n \f$)
+    double _mutation_rate; ///< the mutation rate
     double _eta_m; ///< index parameter (usually \f$ \eta_m \in \left[ 20, 100 \right] \f$)
   };
 
@@ -537,10 +841,11 @@ namespace xevo
   {
     /**
      * @brief Constructor
-     * 
+     *
      * @param er elit rate
      */
-    Elitism(double er) : _elite_rate(er)
+    Elitism(double er, bool maximise = true) :
+      _elite_rate(er), _maximise(maximise)
     {
 
     }
@@ -559,18 +864,28 @@ namespace xevo
       std::size_t no_of_elites = static_cast<std::size_t>(ceil(_elite_rate * no_of_indiv));
       std::array<std::size_t, 2> shape_out = { no_of_elites, no_of_vars };
       F _X_out = xt::zeros<T>(shape_out);
-      auto args = xt::argsort(_Y);
-      auto iter_back = args.crbegin();
-      for (std::size_t i{ 0 }; i < no_of_elites; ++i)
+      if (_maximise)
       {
-        xt::view(_X_out, i, xt::all()) = xt::view(_X, *iter_back, xt::all());
-        ++iter_back;
+        auto args = xt::flip(xt::argsort(_Y), 0);
+        for (std::size_t i{ 0 }; i < no_of_elites; ++i)
+        {
+          xt::view(_X_out, i, xt::all()) = xt::view(_X, args(i), xt::all());
+        }
+      }
+      else
+      {
+        auto args = xt::argsort(_Y);
+        for (std::size_t i{ 0 }; i < no_of_elites; ++i)
+        {
+          xt::view(_X_out, i, xt::all()) = xt::view(_X, args(i), xt::all());
+        }
       }
 
       return _X_out;
     }
   private:
     double _elite_rate; ///< elit rate
+    bool _maximise;
   };
 
   /**
