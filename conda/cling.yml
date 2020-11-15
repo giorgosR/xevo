@@ -2,9 +2,11 @@ name: cling
 channels:
   - defaults
   - conda-forge
+  - giorgosr
 dependencies:
   - python=3.5
   - conda-forge::xeus-cling
   - conda-forge::xtensor
   - conda-forge::xtensor-blas
   - conda-forge::notebook
+  - giorgosr::xevo
