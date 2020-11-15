@@ -7,6 +7,10 @@
 
 This is the `git` repository for the c++ package xevo.
 
+## Dependencies
+
+`xevo` depends on [`xtensor`](https://github.com/xtensor-stack/xtensor) developed by [`QuantStack`](https://quantstack.net/).
+
 ## Introduction
 
 `xevo` is a C++ templated library for creating flexible evolutionary and swarm intelligence algorithms. The implemented algorithms are designed in a way so the user can control/define the algorithm's main functional elements (e.g. mutation, crossover, etc.).
@@ -126,11 +130,6 @@ for (auto i{0}; i<num_generations; ++i)
                           std::make_tuple(0.5, 60.0));
 }
 ```
-
-
-## Dependencies
-
-`xevo` depends on [`xtensor`](https://github.com/xtensor-stack/xtensor) developed by [`QuantStack`](https://quantstack.net/).
 
 ## Clone
 
