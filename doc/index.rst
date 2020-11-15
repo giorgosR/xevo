@@ -9,7 +9,7 @@ xevo
    :caption: Contents:
 
    main.rst
-   introductio.rstn
+   introduction.rst
    usage.rst
    api.rst
 
