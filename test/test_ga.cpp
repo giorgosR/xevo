@@ -140,3 +140,30 @@ TEST(ga, auto_evolve_tol)
 
 //  EXPECT_TRUE((stall_i == stall) && (gen_i < max_generations)); 
 }
+
+TEST(ga, Rastriginsfcn_scaled_void_evolve)
+{
+  std::array<std::size_t, 2> shape = { 40, 2 };
+  xt::xarray<double> X = xt::zeros<double>(shape);
+
+  xevo::Rastriginsfcn_scaled objective_f;
+
+  xevo::ga genetic_algorithm;
+  genetic_algorithm.initialise(X);
+
+  std::size_t num_generations = 300;
+  for (auto i{ 0 }; i < num_generations; ++i)
+  {
+    genetic_algorithm.evolve(X, objective_f, std::make_tuple(0.05),
+      std::make_tuple(),
+      std::make_tuple(0.8), std::make_tuple(0.1, 60.0));
+  }
+
+  double best_x1 = 0.5;
+  double best_x2 = 0.5;
+
+  EXPECT_NEAR(best_x1, X(0, 0), 1e-003);
+  EXPECT_NEAR(best_x2, X(0, 1), 1e-003);
+
+}
+
