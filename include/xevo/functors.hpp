@@ -651,9 +651,21 @@ namespace xevo
   };
 
   /**
- * @brief Cross over functor
- *
- */
+   * @brief Cross over functor
+   *
+   * This functor calculates for single arithmetic crossover
+   *  For two parents:
+   *
+   *  \f[ X_1: {x_1^1, x_1^2, ... , x_1^k, x_1^{k+1}, ..., x_1^n} \f]
+   *
+   *  \f[ X_2: {x_2^1, x_2^2, ... , x_2^k, x_2^{k+1}, ..., x_2^n} \f]
+   *
+   * Peak random gene at \f${k}\f$. Then the two children become:
+   *
+   * \f[ X_1: {x_1^1, x_1^2, ... , \alpha x_2^k + (1 - \alpha)x_1^k, x_1^{k+1}, ..., x_1^n} \f]
+   *
+   * \f[ X_2: {x_2^1, x_2^2, ... , \alpha x_1^k + (1 - \alpha)x_2^k, x_2^{k+1}, ..., x_2^n} \f]
+   */
   struct Crossover
   {
     /**
