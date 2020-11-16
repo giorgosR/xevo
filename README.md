@@ -2,6 +2,10 @@
 
 [![Build Status](https://dev.azure.com/giorgosragos/giorgosr-xevo/_apis/build/status/giorgosR.xevo?branchName=master)](https://dev.azure.com/giorgosragos/giorgosr-xevo/_build/latest?definitionId=3&branchName=master)
 [![Documentation Status](https://readthedocs.org/projects/xevo/badge/?version=latest)](https://xevo.readthedocs.io/en/latest/?badge=latest)
+[![Anaconda-Server Badge](https://anaconda.org/giorgosr/xevo/badges/version.svg)](https://anaconda.org/giorgosr/xevo)
+[![Anaconda-Server Badge](https://anaconda.org/giorgosr/xevo/badges/platforms.svg)](https://anaconda.org/giorgosr/xevo)
+[![Anaconda-Server Badge](https://anaconda.org/giorgosr/xevo/badges/license.svg)](https://anaconda.org/giorgosr/xevo)
+[![Anaconda-Server Badge](https://anaconda.org/giorgosr/xevo/badges/installer/conda.svg)](https://conda.anaconda.org/giorgosr)
 
 # Evolutionary and Swarm Intelligence algorithms
 
