@@ -2,8 +2,7 @@
 
 [![Build Status](https://dev.azure.com/giorgosragos/giorgosr-xevo/_apis/build/status/giorgosR.xevo?branchName=master)](https://dev.azure.com/giorgosragos/giorgosr-xevo/_build/latest?definitionId=3&branchName=master)
 [![Documentation Status](https://readthedocs.org/projects/xevo/badge/?version=latest)](https://xevo.readthedocs.io/en/latest/?badge=latest)
-![Docker Automated build](https://img.shields.io/docker/automated/giorgosr/xevo)
-![Docker Build Status](https://img.shields.io/docker/build/giorgosr/xevo)
+![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/giorgosr/xevo)
 [![Anaconda-Server Badge](https://anaconda.org/giorgosr/xevo/badges/version.svg)](https://anaconda.org/giorgosr/xevo)
 [![Anaconda-Server Badge](https://anaconda.org/giorgosr/xevo/badges/platforms.svg)](https://anaconda.org/giorgosr/xevo)
 [![Anaconda-Server Badge](https://anaconda.org/giorgosr/xevo/badges/license.svg)](https://anaconda.org/giorgosr/xevo)
