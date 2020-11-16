@@ -4,9 +4,9 @@ channels:
   - conda-forge
   - giorgosr
 dependencies:
-  - python=3.5
+  - python=3.7
+  - giorgosr::xevo
   - conda-forge::xeus-cling
   - conda-forge::xtensor
   - conda-forge::xtensor-blas
   - conda-forge::notebook
-  - giorgosr::xevo

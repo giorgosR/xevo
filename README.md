@@ -2,6 +2,8 @@
 
 [![Build Status](https://dev.azure.com/giorgosragos/giorgosr-xevo/_apis/build/status/giorgosR.xevo?branchName=master)](https://dev.azure.com/giorgosragos/giorgosr-xevo/_build/latest?definitionId=3&branchName=master)
 [![Documentation Status](https://readthedocs.org/projects/xevo/badge/?version=latest)](https://xevo.readthedocs.io/en/latest/?badge=latest)
+![Docker Automated build](https://img.shields.io/docker/automated/giorgosr/xevo)
+![Docker Build Status](https://img.shields.io/docker/build/giorgosr/xevo)
 [![Anaconda-Server Badge](https://anaconda.org/giorgosr/xevo/badges/version.svg)](https://anaconda.org/giorgosr/xevo)
 [![Anaconda-Server Badge](https://anaconda.org/giorgosr/xevo/badges/platforms.svg)](https://anaconda.org/giorgosr/xevo)
 [![Anaconda-Server Badge](https://anaconda.org/giorgosr/xevo/badges/license.svg)](https://anaconda.org/giorgosr/xevo)
@@ -165,16 +167,16 @@ cmake --build ./ INSTALL
 
 ## Docker
 
-To build local docker images with C++ jupyter notebooks, install `docker` from a terminal type:
+There is a docker image `giorgosr/xevo` that can be pulled and test `xevo` with `xeus-cling` jupyter kernel. If you have docker on your system type:
 
 ```bash
-docker build -t <image_name> -f .\junbs\Dockerfile .
+docker push giorgosr/xevo:latest
 ```
 
-Once built, run the image as
+Once pulled, run the image as
 
 ```bash
-docker run -p 8080:8888 <image_name>:tag
+docker run -p 8080:8888 giorgosr/xevo:latest
 ```
 
 This will start a jupyter kernel inside the docker image. To connect to the kernel, open your browser and paste the following address:
