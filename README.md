@@ -6,7 +6,7 @@
 [![Anaconda-Server Badge](https://anaconda.org/giorgosr/xevo/badges/version.svg)](https://anaconda.org/giorgosr/xevo)
 [![Anaconda-Server Badge](https://anaconda.org/giorgosr/xevo/badges/platforms.svg)](https://anaconda.org/giorgosr/xevo)
 [![Anaconda-Server Badge](https://anaconda.org/giorgosr/xevo/badges/license.svg)](https://anaconda.org/giorgosr/xevo)
-[![Anaconda-Server Badge](https://anaconda.org/giorgosr/xevo/badges/installer/conda.svg)](https://conda.anaconda.org/giorgosr)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/giorgosR/xevo/binder?filepath=junbs%2Foptimisation_analytical_functions_ga.ipynb)
 
 # Evolutionary and Swarm Intelligence algorithms
 
