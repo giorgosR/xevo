@@ -169,7 +169,7 @@ cmake --build ./ INSTALL
 There is a docker image `giorgosr/xevo` that can be pulled and test `xevo` with `xeus-cling` jupyter kernel. If you have docker on your system type:
 
 ```bash
-docker push giorgosr/xevo:latest
+docker pull giorgosr/xevo:latest
 ```
 
 Once pulled, run the image as
